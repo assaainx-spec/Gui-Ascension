@@ -13,11 +13,8 @@ import net.thejadeproject.ascension.refactor_packages.skills.ISkill;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodline;
 import net.thejadeproject.ascension.refactor_packages.physiques.IPhysique;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
-import net.thejadeproject.ascension.refactor_packages.attributes.AscensionAttribute;
 import net.thejadeproject.ascension.refactor_packages.forms.IEntityForm;
 import net.thejadeproject.ascension.refactor_packages.stats.Stat;
-
-import java.nio.file.Path;
 
 @EventBusSubscriber(modid = AscensionCraft.MOD_ID)
 public class AscensionRegistries {

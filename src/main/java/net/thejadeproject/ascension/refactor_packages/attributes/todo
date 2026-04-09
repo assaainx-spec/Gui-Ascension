@@ -1,3 +1,0 @@
-- add normal attribute modifiers similar to how minecraft does them for compatibility reasons
-- add some sort of map of stat containers that hold, stat, percentage value, stat effectiveness(a special multiplier that decides how "effective a stat is applied"
-this is different than the "global" effectiveness value and is only applied when used for this specific attribute)

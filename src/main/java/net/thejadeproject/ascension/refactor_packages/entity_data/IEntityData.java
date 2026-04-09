@@ -1,8 +1,14 @@
 package net.thejadeproject.ascension.refactor_packages.entity_data;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.thejadeproject.ascension.refactor_packages.attributes.AscensionAttributeHolder;
+import net.thejadeproject.ascension.refactor_packages.attributes.AttributeValueContainer;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodline;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodlineData;
 import net.thejadeproject.ascension.refactor_packages.forms.IEntityForm;
@@ -13,6 +19,7 @@ import net.thejadeproject.ascension.refactor_packages.physiques.IPhysiqueData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 import net.thejadeproject.ascension.refactor_packages.skill_casting.SkillCastHandler;
 import net.thejadeproject.ascension.refactor_packages.skills.IPersistentSkillData;
+import net.thejadeproject.ascension.refactor_packages.stats.custom.ModStats;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechniqueData;
 
 import java.util.ArrayList;
@@ -105,6 +112,28 @@ public interface IEntityData {
     Set<ResourceLocation> getAllSkills();
     //============================= SKILL CASTING ====================================
     SkillCastHandler getSkillCastHandler();
+    //============================= ATTRIBUTES =======================================
+    AscensionAttributeHolder getAscensionAttributeHolder();
+    default void addDefaultAttributes(LivingEntity entity){
+        AscensionAttributeHolder holder = getAscensionAttributeHolder();
+        //TODO set up some null handling
+        holder.addAttribute(Attributes.MAX_HEALTH, Component.literal("Max Health"));
+        holder.getAttribute(Attributes.MAX_HEALTH).addStatScaling(ModStats.VITALITY.get(),2); //200% of vitality
+
+        holder.addAttribute(Attributes.ATTACK_DAMAGE,Component.literal("Attack Damage"));
+        holder.getAttribute(Attributes.ATTACK_DAMAGE).addStatScaling(ModStats.STRENGTH.get(),1); //100% of strength
+
+        holder.addAttribute(Attributes.JUMP_STRENGTH,Component.literal("Jump Strength"));
+        holder.getAttribute(Attributes.JUMP_STRENGTH).addStatScaling(ModStats.STRENGTH.get(),0.1); //10% of strength
+
+        //due to how speed scales in mc these need to be low
+        //this will also be further suppressed while in combat
+        holder.addAttribute(Attributes.MOVEMENT_SPEED,Component.literal("Movement Speed"));
+        holder.getAttribute(Attributes.MOVEMENT_SPEED).addStatScaling(ModStats.STRENGTH.get(),0.0001); //0.01% of strength
+        holder.getAttribute(Attributes.MOVEMENT_SPEED).addStatScaling(ModStats.AGILITY.get(),0.001); //0.1% of agility
+
+        holder.updateAttributes(this);
+    }
     //============================= DATA HANDLING ====================================
     void write(CompoundTag tag);
 
@@ -112,4 +141,7 @@ public interface IEntityData {
     default boolean isClientSide(){
         return FMLEnvironment.dist.isClient();
     }
+
+
+
 }

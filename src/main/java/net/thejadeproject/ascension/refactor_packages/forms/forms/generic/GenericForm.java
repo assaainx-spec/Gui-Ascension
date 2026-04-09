@@ -158,6 +158,5 @@ public class GenericForm implements IEntityForm {
             formData.getPathData(path).encode(buf);
         }
 
-        //TODO Stat sheet
     }
 }

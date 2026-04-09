@@ -4,11 +4,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.thejadeproject.ascension.refactor_packages.attributes.AscensionAttributesContainer;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodline;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodlineData;
 import net.thejadeproject.ascension.refactor_packages.forms.IEntityForm;
@@ -18,13 +15,12 @@ import net.thejadeproject.ascension.refactor_packages.paths.PathData;
 import net.thejadeproject.ascension.refactor_packages.physiques.IPhysique;
 import net.thejadeproject.ascension.refactor_packages.physiques.IPhysiqueData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
-import net.thejadeproject.ascension.refactor_packages.skills.HeldSkill;
 import net.thejadeproject.ascension.refactor_packages.skills.HeldSkills;
 import net.thejadeproject.ascension.refactor_packages.stats.StatSheet;
+import net.thejadeproject.ascension.refactor_packages.stats.custom.ModStats;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class GenericFormData implements IEntityFormData {
@@ -45,6 +41,13 @@ public class GenericFormData implements IEntityFormData {
 
         this.formId = formId;
         heldSkills  = new HeldSkills();
+        initStatSheet();
+    }
+    public void initStatSheet(){
+        statSheet = new StatSheet();
+        statSheet.addStat(ModStats.VITALITY.get(),5);
+        statSheet.addStat(ModStats.AGILITY.get(),5);
+        statSheet.addStat(ModStats.STRENGTH.get(),5);
     }
 
     @Override

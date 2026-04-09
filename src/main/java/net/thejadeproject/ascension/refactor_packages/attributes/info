@@ -1,3 +1,0 @@
-this is used to hold cached values for ascension equivalent stats
-basically places like maxHP,speed,and damage calculations will use these values instead of their own
-this will also include a suppression multiplier

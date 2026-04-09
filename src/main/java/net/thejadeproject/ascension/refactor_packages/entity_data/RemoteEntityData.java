@@ -2,6 +2,7 @@ package net.thejadeproject.ascension.refactor_packages.entity_data;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.thejadeproject.ascension.refactor_packages.attributes.AscensionAttributeHolder;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodline;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodlineData;
 import net.thejadeproject.ascension.refactor_packages.forms.IEntityForm;
@@ -254,6 +255,11 @@ public class RemoteEntityData implements IEntityData{
 
     @Override
     public SkillCastHandler getSkillCastHandler() {
+        return null;
+    }
+
+    @Override
+    public AscensionAttributeHolder getAscensionAttributeHolder() {
         return null;
     }
 

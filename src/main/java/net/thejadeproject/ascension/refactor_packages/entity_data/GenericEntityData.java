@@ -10,6 +10,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.thejadeproject.ascension.refactor_packages.attributes.AscensionAttributeHolder;
+import net.thejadeproject.ascension.refactor_packages.attributes.AttributeValueContainer;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodline;
 import net.thejadeproject.ascension.refactor_packages.bloodlines.IBloodlineData;
 import net.thejadeproject.ascension.refactor_packages.events.PhysiqueChangeEvent;
@@ -30,12 +32,13 @@ import net.thejadeproject.ascension.refactor_packages.skills.IPersistentSkillDat
 import net.thejadeproject.ascension.refactor_packages.skills.ISkill;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechniqueData;
+import org.checkerframework.checker.units.qual.A;
 
 import java.nio.file.Path;
 import java.util.*;
 
 public class GenericEntityData implements IEntityData {
-    private ResourceLocation activeForm;
+    private ResourceLocation activeForm = ModForms.MORTAL_VESSEL.getId();
     private UUID attachedEntity;
 
     private final SkillCastHandler skillCastHandler = new SkillCastHandler();
@@ -45,6 +48,9 @@ public class GenericEntityData implements IEntityData {
 
     private ResourceLocation physiqueForm; //the form holding the data of the physique
     private ResourceLocation bloodlineForm;//almost always body (but might have some rare circumstances where it is not)
+
+    //not final since in the future we will be able to change it
+    private AscensionAttributeHolder ascensionAttributeHolder;
 
     boolean attachedEntityLoaded;
 
@@ -58,12 +64,18 @@ public class GenericEntityData implements IEntityData {
     //========================== SAVE DATA HANDLING ==========================
     public GenericEntityData(Entity attachedEntity){
         this.attachedEntity = attachedEntity.getUUID();
+
         //TODO add mortal vessel
         heldFormData.put(ModForms.MORTAL_VESSEL.getId(),ModForms.MORTAL_VESSEL.get().freshEntityFormData(this));
 
         //TODO add soul form
         heldFormData.put(ModForms.SOUL_FORM.getId(),ModForms.SOUL_FORM.get().freshEntityFormData(this));
 
+        if(attachedEntity instanceof LivingEntity entity){
+            ascensionAttributeHolder = new AscensionAttributeHolder(entity);
+            addDefaultAttributes(entity);
+
+        }
     }
     public GenericEntityData(Entity attachedEntity, CompoundTag tag){
         System.out.println("creating player data");
@@ -72,6 +84,7 @@ public class GenericEntityData implements IEntityData {
         ListTag formDataTags = tag.getList("form_data", Tag.TAG_COMPOUND);
         ListTag skillDataTags = tag.getList("skill_data",Tag.TAG_COMPOUND);
         ListTag pathDataTags = tag.getList("path_progress",Tag.TAG_COMPOUND);
+
 
         for(int i=0;i<formDataTags.size();i++){
             CompoundTag formDataTag = formDataTags.getCompound(i);
@@ -98,7 +111,11 @@ public class GenericEntityData implements IEntityData {
         heldFormData.put(ModForms.SOUL_FORM.getId(),
                 cachedFormData.containsKey(ModForms.SOUL_FORM.getId()) ?
                         cachedFormData.get(ModForms.SOUL_FORM.getId()) : ModForms.SOUL_FORM.get().freshEntityFormData(this));
+        if(attachedEntity instanceof LivingEntity entity){
+            ascensionAttributeHolder = new AscensionAttributeHolder(entity);
+            addDefaultAttributes(entity);
 
+        }
 
         String rawPhysique = tag.getString("physique");
         //the user has no physique
@@ -127,7 +144,7 @@ public class GenericEntityData implements IEntityData {
 
             //TODO add a cache for when the form does not yet exist
         }
-
+        getAscensionAttributeHolder().updateAttributes(this);
     }
     public void sync(Player player){
         for(ResourceLocation form:heldFormData.keySet()){
@@ -590,4 +607,10 @@ public class GenericEntityData implements IEntityData {
     public SkillCastHandler getSkillCastHandler() {
         return skillCastHandler;
     }
+    //============================= ATTRIBUTES =======================================
+    @Override
+    public AscensionAttributeHolder getAscensionAttributeHolder() {
+        return ascensionAttributeHolder;
+    }
+
 }

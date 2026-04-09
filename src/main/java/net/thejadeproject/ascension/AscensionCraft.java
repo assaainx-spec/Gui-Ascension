@@ -63,6 +63,7 @@ import net.thejadeproject.ascension.refactor_packages.forms.forms.ModForms;
 import net.thejadeproject.ascension.refactor_packages.paths.ModPaths;
 import net.thejadeproject.ascension.refactor_packages.physiques.ModPhysiques;
 import net.thejadeproject.ascension.refactor_packages.skills.custom.ModSkills;
+import net.thejadeproject.ascension.refactor_packages.stats.custom.ModStats;
 import net.thejadeproject.ascension.refactor_packages.techniques.ModTechniques;
 import net.thejadeproject.ascension.sects.*;
 import net.thejadeproject.ascension.sects.missions.SectMissionEventHandler;
@@ -146,7 +147,7 @@ public class AscensionCraft {
         ModSkills.register(modEventBus);
 
 
-
+        ModStats.register(modEventBus);
         // In your main mod class, in the constructor:
         NeoForge.EVENT_BUS.register(TeleportationEventHandler.class);
 
@@ -304,7 +305,9 @@ public class AscensionCraft {
             System.out.println("TRYING TO SYNC PLAYER DATA");
             if(player.getData(ModAttachments.ENTITY_DATA) instanceof GenericEntityData genericEntityData){
                 genericEntityData.sync(player);
+                genericEntityData.getAscensionAttributeHolder().log();
             }
+
         }
 
 

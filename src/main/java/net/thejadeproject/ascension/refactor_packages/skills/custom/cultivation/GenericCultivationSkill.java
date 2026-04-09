@@ -10,6 +10,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.thejadeproject.ascension.AscensionCraft;
@@ -20,6 +23,7 @@ import net.thejadeproject.ascension.refactor_packages.paths.PathData;
 import net.thejadeproject.ascension.refactor_packages.physiques.IPhysiqueData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 import net.thejadeproject.ascension.refactor_packages.skill_casting.casting.CastEndData;
+import net.thejadeproject.ascension.refactor_packages.skill_casting.casting.CastEndReason;
 import net.thejadeproject.ascension.refactor_packages.skill_casting.casting.CastResult;
 import net.thejadeproject.ascension.refactor_packages.skills.IPersistentSkillData;
 import net.thejadeproject.ascension.refactor_packages.skills.ISkill;
@@ -122,11 +126,13 @@ public class GenericCultivationSkill implements ICastableSkill {
 
     @Override
     public void initialCast(Entity caster, IPreCastData preCastData) {
+        //TODO add slow
 
     }
 
     @Override
     public CastResult canCast(Entity caster, IPreCastData preCastData) {
+
         return new CastResult(CastResult.Type.SUCCESS);
     }
 

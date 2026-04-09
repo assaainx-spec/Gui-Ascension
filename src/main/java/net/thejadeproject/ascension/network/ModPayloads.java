@@ -15,6 +15,7 @@ import net.thejadeproject.ascension.refactor_packages.network.client_bound.entit
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.skills.ClearSlot;
 import net.thejadeproject.ascension.refactor_packages.network.client_bound.entity_data.skills.SyncHeldSkills;
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.cultivation.TriggerBreakthrough;
+import net.thejadeproject.ascension.refactor_packages.network.server_bound.cultivation.UpdateSuppressionValue;
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.skills.SetActiveSlot;
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.skills.UpdateSkillSlot;
 
@@ -101,6 +102,11 @@ public class ModPayloads {
                 TriggerBreakthrough.TYPE,
                 TriggerBreakthrough.STREAM_CODEC,
                 TriggerBreakthrough::handlePayload
+        );
+        registrar.playToServer(
+                UpdateSuppressionValue.TYPE,
+                UpdateSuppressionValue.STREAM_CODEC,
+                UpdateSuppressionValue::handlePayload
         );
 
 

@@ -19,7 +19,7 @@ import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 
 public class PathDetailPanel extends RenderableElement {
 
-    private final ResourceLocation pathId;
+    private ResourceLocation pathId;
     private final TechniquePopup popup;
     private boolean popupVisible = false;
 
@@ -29,13 +29,17 @@ public class PathDetailPanel extends RenderableElement {
     private int techniqueTextWidth = 0;
     private int breakthroughBtnY = -1;
 
-    public PathDetailPanel(UIFrame frame, ResourceLocation pathId, TechniquePopup popup) {
+    public PathDetailPanel(UIFrame frame, TechniquePopup popup) {
         super(frame);
-        this.pathId = pathId;
         this.popup = popup;
         setWidth(260);
         setHeight(220);
         addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
+    }
+
+    public void setPath(ResourceLocation pathId) {
+        this.pathId = pathId;
+        popupVisible = false;
     }
 
     public boolean isPopupVisible() {

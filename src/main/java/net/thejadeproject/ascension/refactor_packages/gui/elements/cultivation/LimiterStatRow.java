@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.phys.Vec2;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.cultivation.UpdateSuppressionValue;
@@ -30,20 +31,23 @@ public class LimiterStatRow extends RenderableElement {
         this.label = label;
         this.attribute = attribute;
         this.attributeId = attributeId;
-        setWidth(230);
+        setWidth(175);
         setHeight(12);
         addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
     }
 
     private void onMouseDown(EasyEvent event) {
         if (!(event instanceof EasyMouseEvent mouseEvent)) return;
-        double mouseX = mouseEvent.getMouseX();
-        double mouseY = mouseEvent.getMouseY();
+        Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
+        double mouseX = local.x;
+        double mouseY = local.y;
 
-        if (mouseX >= 155 && mouseX <= 163 && mouseY >= 1 && mouseY <= 11) {
+        int plusX = getWidth() - 11;
+        int minusX = plusX - 13;
+        if (mouseX >= minusX && mouseX <= minusX + 8 && mouseY >= 1 && mouseY <= 11) {
             changeSuppression(getStep());
             event.setCanceled(true);
-        } else if (mouseX >= 190 && mouseX <= 198 && mouseY >= 1 && mouseY <= 11) {
+        } else if (mouseX >= plusX && mouseX <= plusX + 8 && mouseY >= 1 && mouseY <= 11) {
             changeSuppression(-getStep());
             event.setCanceled(true);
         }
@@ -77,16 +81,21 @@ public class LimiterStatRow extends RenderableElement {
         double suppression = getCurrentSuppression();
         String suppStr = String.format("%.1f%%", suppression * 100.0);
 
-        gfx.drawString(Minecraft.getInstance().font, label, 0, 2, 0xFFAAAAAA, false);
-        gfx.drawString(Minecraft.getInstance().font, realStr, 80, 2, 0xFFFFFFFF, false);
-        gfx.drawString(Minecraft.getInstance().font, suppStr, 120, 2, 0xFFFFDD88, false);
+        var font = Minecraft.getInstance().font;
+        int plusX = getWidth() - 11;
+        int minusX = plusX - 13;
+        int suppStrX = minusX - font.width(suppStr) - 4;
 
-        // − button
-        gfx.fill(155, 1, 163, 11, 0xFF222222);
-        gfx.drawString(Minecraft.getInstance().font, "-", 157, 2, 0xFFFFFFFF, false);
+        gfx.drawString(font, label, 0, 2, 0xFFAAAAAA, false);
+        gfx.drawString(font, realStr, 82, 2, 0xFFFFFFFF, false);
+        gfx.drawString(font, suppStr, suppStrX, 2, 0xFFFFDD88, false);
 
-        // + button
-        gfx.fill(190, 1, 198, 11, 0xFF222222);
-        gfx.drawString(Minecraft.getInstance().font, "+", 192, 2, 0xFFFFFFFF, false);
+        // − button (suppress more / lower stat)
+        gfx.fill(minusX, 1, minusX + 8, 11, 0xFF222222);
+        gfx.drawString(font, "-", minusX + 1, 2, 0xFFFFFFFF, false);
+
+        // + button (suppress less / restore stat)
+        gfx.fill(plusX, 1, plusX + 8, 11, 0xFF222222);
+        gfx.drawString(font, "+", plusX + 1, 2, 0xFFFFFFFF, false);
     }
 }

@@ -9,31 +9,32 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec2;
 
 public class StatsPanel extends RenderableElement {
     private boolean helpVisible = false;
 
     public StatsPanel(UIFrame frame) {
         super(frame);
-        setWidth(260);
-        setHeight(220);
+        setWidth(195);
+        setHeight(180);
 
-        int y = 18;
+        int y = 14;
 
         // read-only rows
-        addStatRow(frame, "Max HP",     vanillaId("generic.max_health"),        y); y += 13;
-        addStatRow(frame, "Armour",     vanillaId("generic.armor"),             y); y += 13;
-        addStatRow(frame, "Toughness",  vanillaId("generic.armor_toughness"),   y); y += 13;
-        addStatRow(frame, "Mining Spd", vanillaId("player.block_break_speed"),  y); y += 16;
+        addStatRow(frame, "Max HP",     vanillaId("generic.max_health"),        y); y += 10;
+        addStatRow(frame, "Armour",     vanillaId("generic.armor"),             y); y += 10;
+        addStatRow(frame, "Toughness",  vanillaId("generic.armor_toughness"),   y); y += 10;
+        addStatRow(frame, "Mining Spd", vanillaId("player.block_break_speed"),  y); y += 12;
 
         y += 3; // gap before limiter rows
 
         // limiter rows
-        addLimiterRow(frame, "Atk Damage",    vanillaId("generic.attack_damage"),    y); y += 13;
-        addLimiterRow(frame, "Atk Speed",     vanillaId("generic.attack_speed"),     y); y += 13;
-        addLimiterRow(frame, "Atk Knockback", vanillaId("generic.attack_knockback"), y); y += 13;
-        addLimiterRow(frame, "Move Speed",    vanillaId("generic.movement_speed"),   y); y += 13;
-        addLimiterRow(frame, "Jump Height",   vanillaId("generic.jump_strength"),    y); y += 13;
+        addLimiterRow(frame, "Atk Damage",    vanillaId("generic.attack_damage"),    y); y += 10;
+        addLimiterRow(frame, "Atk Speed",     vanillaId("generic.attack_speed"),     y); y += 10;
+        addLimiterRow(frame, "Atk Knockback", vanillaId("generic.attack_knockback"), y); y += 10;
+        addLimiterRow(frame, "Move Speed",    vanillaId("generic.movement_speed"),   y); y += 10;
+        addLimiterRow(frame, "Jump Height",   vanillaId("generic.jump_strength"),    y); y += 10;
         addLimiterRow(frame, "Step Height",   vanillaId("generic.step_height"),      y);
 
         addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
@@ -41,9 +42,10 @@ public class StatsPanel extends RenderableElement {
 
     private void onMouseDown(EasyEvent event) {
         if (!(event instanceof EasyMouseEvent mouseEvent)) return;
+        Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
+        double mx = local.x;
+        double my = local.y;
         int qx = getWidth() - 14;
-        double mx = mouseEvent.getMouseX();
-        double my = mouseEvent.getMouseY();
         if (mx >= qx && mx <= qx+12 && my >= 2 && my <= 14) {
             helpVisible = !helpVisible;
             event.setCanceled(true);
@@ -96,17 +98,17 @@ public class StatsPanel extends RenderableElement {
         gfx.drawString(Minecraft.getInstance().font, "?", qx+3, 4, 0xFFF0B800, false);
 
         // divider between read-only and limiter rows
-        int divY = 18 + 4*13 + 3;
+        int divY = 14 + 4*10 + 3;
         gfx.fill(4, divY-2, getWidth()-4, divY-1, 0x55C8960A);
 
         super.render(gfx, mouseX, mouseY, partialTick);
 
         // help popup drawn on top
         if (helpVisible) {
-            int px = getWidth() - 2;
-            int py = 0;
             int pw = 110;
             int ph = 56;
+            int px = getWidth() - pw - 2;
+            int py = 0;
             gfx.fill(px, py, px+pw, py+ph, 0xEE050810);
             gfx.fill(px, py, px+pw, py+1, 0xFFC8960A);
             gfx.fill(px, py+ph-1, px+pw, py+ph, 0xFFC8960A);

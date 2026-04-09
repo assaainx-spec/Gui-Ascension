@@ -18,14 +18,14 @@ import java.util.List;
 
 public class CultivationMenuContainer extends RenderableElement {
 
-    private static final int WIDTH = 350;
-    private static final int HEIGHT = 240;
-    private static final int SIDEBAR_W = 90;
-    private static final int PANEL_W = 260;
-    private static final int TAB_H = 18;
-    private static final int TAB_GAP = 3;
-    private static final int TAB_X = 4;
-    private static final int TAB_W = SIDEBAR_W - 8; // 82
+    private static final int WIDTH = 263;
+    private static final int HEIGHT = 180;
+    private static final int SIDEBAR_W = 68;
+    private static final int PANEL_W = 195;
+    private static final int TAB_H = 14;
+    private static final int TAB_GAP = 2;
+    private static final int TAB_X = 3;
+    private static final int TAB_W = SIDEBAR_W - 6;
 
     private final List<ResourceLocation> pathTabs = new ArrayList<>();
     private final PathDetailPanel pathPanel;
@@ -131,10 +131,10 @@ public class CultivationMenuContainer extends RenderableElement {
         gfx.fill(WIDTH - 2, 0, WIDTH, HEIGHT, 0xFFC8960A);
 
         // sidebar background
-        gfx.fill(2, 2, 88, HEIGHT - 2, 0x88050810);
+        gfx.fill(2, 2, SIDEBAR_W - 2, HEIGHT - 2, 0x88050810);
 
         // sidebar/panel divider
-        gfx.fill(89, 0, 90, HEIGHT, 0x66C8960A);
+        gfx.fill(SIDEBAR_W - 1, 0, SIDEBAR_W, HEIGHT, 0x66C8960A);
 
         // "PATHS" label
         gfx.drawString(font, "PATHS", 6, 6, 0xFFF0B800, false);

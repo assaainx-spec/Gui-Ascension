@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec2;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 
@@ -22,8 +23,8 @@ public class TechniquePopup extends RenderableElement {
 
     public TechniquePopup(UIFrame frame) {
         super(frame);
-        setWidth(180);
-        setHeight(220);
+        setWidth(135);
+        setHeight(180);
 
         addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
     }
@@ -38,10 +39,11 @@ public class TechniquePopup extends RenderableElement {
 
     private void onMouseDown(EasyEvent event) {
         if (!(event instanceof EasyMouseEvent mouseEvent)) return;
+        Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
         // close button: top-right corner, x=width-18, y=2, w=14, h=12
         int bx = getWidth() - 18;
-        double mx = mouseEvent.getMouseX();
-        double my = mouseEvent.getMouseY();
+        double mx = local.x;
+        double my = local.y;
         if (mx >= bx && mx <= bx + 14 && my >= 2 && my <= 14) {
             if (onClose != null) onClose.run();
             event.setCanceled(true);

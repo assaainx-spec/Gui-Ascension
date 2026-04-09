@@ -32,8 +32,8 @@ public class PathDetailPanel extends RenderableElement {
     public PathDetailPanel(UIFrame frame, TechniquePopup popup) {
         super(frame);
         this.popup = popup;
-        setWidth(260);
-        setHeight(220);
+        setWidth(195);
+        setHeight(180);
         addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
     }
 

@@ -16,7 +16,7 @@ public class StatRow extends RenderableElement {
         super(frame);
         this.label = label;
         this.attribute = attribute;
-        setWidth(230);
+        setWidth(175);
         setHeight(10);
     }
 

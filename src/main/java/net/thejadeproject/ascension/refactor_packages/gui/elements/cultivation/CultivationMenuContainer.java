@@ -37,6 +37,8 @@ public class CultivationMenuContainer extends RenderableElement {
     public CultivationMenuContainer(UIFrame frame) {
         super(frame);
         getPositioning().setPositioningRule(PositioningRules.CENTER);
+        getPositioning().setX(-WIDTH / 2);
+        getPositioning().setY(-HEIGHT / 2);
         setWidth(WIDTH);
         setHeight(HEIGHT);
 
@@ -46,17 +48,17 @@ public class CultivationMenuContainer extends RenderableElement {
         techniquePopup = new TechniquePopup(frame);
         techniquePopup.getPositioning().setX(SIDEBAR_W + PANEL_W + 4);
         techniquePopup.getPositioning().setY(0);
-        techniquePopup.setVisible(false);
+        techniquePopup.setActive(false);
 
         pathPanel = new PathDetailPanel(frame, techniquePopup);
         pathPanel.getPositioning().setX(SIDEBAR_W);
         pathPanel.getPositioning().setY(0);
-        pathPanel.setVisible(false);
+        pathPanel.setActive(false);
 
         statsPanel = new StatsPanel(frame);
         statsPanel.getPositioning().setX(SIDEBAR_W);
         statsPanel.getPositioning().setY(0);
-        statsPanel.setVisible(false);
+        statsPanel.setActive(false);
 
         addChild(pathPanel);
         addChild(statsPanel);
@@ -76,17 +78,17 @@ public class CultivationMenuContainer extends RenderableElement {
         selectedPath = pathId;
         statsSelected = false;
         pathPanel.setPath(pathId);
-        pathPanel.setVisible(true);
-        statsPanel.setVisible(false);
-        techniquePopup.setVisible(false);
+        pathPanel.setActive(true);
+        statsPanel.setActive(false);
+        techniquePopup.setActive(false);
     }
 
     private void selectStats() {
         selectedPath = null;
         statsSelected = true;
-        statsPanel.setVisible(true);
-        pathPanel.setVisible(false);
-        techniquePopup.setVisible(false);
+        statsPanel.setActive(true);
+        pathPanel.setActive(false);
+        techniquePopup.setActive(false);
     }
 
     private void onMouseDown(EasyEvent event) {
@@ -188,10 +190,6 @@ public class CultivationMenuContainer extends RenderableElement {
         super.render(gfx, mouseX, mouseY, partialTick);
 
         // popup visibility sync
-        if (pathPanel.isVisible() && pathPanel.isPopupVisible()) {
-            techniquePopup.setVisible(true);
-        } else {
-            techniquePopup.setVisible(false);
-        }
+        techniquePopup.setActive(pathPanel.isActive() && pathPanel.isPopupVisible());
     }
 }

@@ -10,6 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec2;
+import net.thejadeproject.ascension.data_attachments.ModAttachments;
+import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 
 import java.util.ArrayList;
@@ -42,8 +45,13 @@ public class CultivationMenuContainer extends RenderableElement {
         setWidth(WIDTH);
         setHeight(HEIGHT);
 
-        // collect available paths
-        pathTabs.addAll(AscensionRegistries.Paths.PATHS_REGISTRY.keySet());
+        // only show paths the player is actually cultivating
+        IEntityData entityData = Minecraft.getInstance().player.getData(ModAttachments.ENTITY_DATA);
+        for (ResourceLocation pathId : AscensionRegistries.Paths.PATHS_REGISTRY.keySet()) {
+            if (entityData.hasPath(pathId)) {
+                pathTabs.add(pathId);
+            }
+        }
 
         techniquePopup = new TechniquePopup(frame);
         techniquePopup.getPositioning().setX(SIDEBAR_W + PANEL_W + 4);
@@ -93,8 +101,9 @@ public class CultivationMenuContainer extends RenderableElement {
 
     private void onMouseDown(EasyEvent event) {
         if (!(event instanceof EasyMouseEvent mouseEvent)) return;
-        double mx = mouseEvent.getMouseX();
-        double my = mouseEvent.getMouseY();
+        Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
+        double mx = local.x;
+        double my = local.y;
 
         // check path tabs
         int tabsStartY = 19;

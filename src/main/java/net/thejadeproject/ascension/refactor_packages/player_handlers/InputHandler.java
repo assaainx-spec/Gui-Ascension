@@ -19,6 +19,7 @@ import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.network.serverBound.input.ChangePlayerInputState;
 import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_casting.SkillHotBarContainer;
 import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_view.SkillMenuContainer;
+import net.thejadeproject.ascension.refactor_packages.gui.elements.cultivation.CultivationMenuContainer;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class InputHandler {
     public static final KeyMapping CAST_SKILL_KEY = new KeyMapping("key.ascension.cast_skill", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_V, "ascension skills");
     public static final KeyMapping OPEN_SKILL_MENU = new KeyMapping("key.ascension.open_skill_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_L, "ascension skills");
     public static final KeyMapping SKILL_WHEEL_OVERLAY = new KeyMapping("key.ascension.skill_wheel", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_R, "ascension skills");
+    public static final KeyMapping OPEN_CULTIVATION_MENU = new KeyMapping("key.ascension.open_cultivation_menu", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_I, "ascension skills");
 
     private final static HashSet<KeyMapping> state = new HashSet<>();
     //maps a keyMapping->handler
@@ -51,6 +53,11 @@ public class InputHandler {
             ((SkillHotBarContainer) EasyOverlayHandler.getFrame(ResourceLocation.fromNamespaceAndPath(AscensionCraft.MOD_ID,"skill_wheel")).getRoot()).open();
         }).setOnRelease(mod->{
             ((SkillHotBarContainer) EasyOverlayHandler.getFrame(ResourceLocation.fromNamespaceAndPath(AscensionCraft.MOD_ID,"skill_wheel")).getRoot()).close();
+        }));
+        put(OPEN_CULTIVATION_MENU, new ActionHandler("cultivation_menu_opening").setOnRelease((mod) -> {
+            UIFrame frame = new UIFrame();
+            frame.setRoot(new CultivationMenuContainer(frame));
+            Minecraft.getInstance().setScreen(new EasyScreen(Component.literal("cultivation"), frame));
         }));
     }};
     public static class ActionHandler {

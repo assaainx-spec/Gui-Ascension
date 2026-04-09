@@ -110,7 +110,8 @@ public class PathDetailPanel extends RenderableElement {
         gfx.fill(4, 16, w - 4, 17, 0x55C8960A);
 
         IEntityData entityData = Minecraft.getInstance().player.getData(ModAttachments.ENTITY_DATA);
-        PathData pathData = entityData != null ? entityData.getPathData(pathId) : null;
+        boolean hasPath = entityData != null && entityData.hasPath(pathId);
+        PathData pathData = hasPath ? entityData.getPathData(pathId) : null;
         ITechnique technique = null;
         if (pathData != null && pathData.getLastUsedTechnique() != null) {
             technique = AscensionRegistries.Techniques.TECHNIQUES_REGISTRY.get(pathData.getLastUsedTechnique());
@@ -118,8 +119,8 @@ public class PathDetailPanel extends RenderableElement {
 
         int y = 22;
 
-        if (pathData == null) {
-            gfx.drawString(font, "No path data", 6, y, 0xFFAAAAAA, false);
+        if (!hasPath) {
+            gfx.drawString(font, "You haven't started this path yet.", 6, y, 0xFF666666, false);
             super.render(gfx, mouseX, mouseY, partialTick);
             return;
         }

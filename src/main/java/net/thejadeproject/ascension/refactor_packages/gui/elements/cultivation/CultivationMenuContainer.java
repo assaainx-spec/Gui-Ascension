@@ -11,8 +11,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
-import net.thejadeproject.ascension.data_attachments.ModAttachments;
-import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 
 import java.util.ArrayList;
@@ -45,13 +43,8 @@ public class CultivationMenuContainer extends RenderableElement {
         setWidth(WIDTH);
         setHeight(HEIGHT);
 
-        // only show paths the player is actually cultivating
-        IEntityData entityData = Minecraft.getInstance().player.getData(ModAttachments.ENTITY_DATA);
-        for (ResourceLocation pathId : AscensionRegistries.Paths.PATHS_REGISTRY.keySet()) {
-            if (entityData.hasPath(pathId)) {
-                pathTabs.add(pathId);
-            }
-        }
+        // show all registered paths
+        pathTabs.addAll(AscensionRegistries.Paths.PATHS_REGISTRY.keySet());
 
         techniquePopup = new TechniquePopup(frame);
         techniquePopup.getPositioning().setX(SIDEBAR_W + PANEL_W + 4);

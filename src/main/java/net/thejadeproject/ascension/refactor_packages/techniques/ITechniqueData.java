@@ -7,5 +7,5 @@ import net.thejadeproject.ascension.refactor_packages.util.IDataInstance;
 
 public interface ITechniqueData extends IDataInstance {
 
-    String getTechniqueVersion();
+
 }

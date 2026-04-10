@@ -4,12 +4,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.thejadeproject.ascension.refactor_packages.breakthroughs.IBreakthroughInstance;
 import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.forms.IEntityFormData;
 import net.thejadeproject.ascension.refactor_packages.paths.ModPaths;
 import net.thejadeproject.ascension.refactor_packages.paths.PathData;
 import net.thejadeproject.ascension.refactor_packages.physiques.IPhysiqueData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
+import net.thejadeproject.ascension.refactor_packages.techniques.stability.IStabilityHandler;
 
 import java.util.UUID;
 
@@ -38,12 +40,16 @@ public interface ITechnique {
     //figure something out with compatibility
     boolean isCompatibleWith(ResourceLocation technique);
 
+    //TODO think about making these pass technique data as well
+
     default Component getMajorRealmName(int majorRealm){
         return AscensionRegistries.Paths.PATHS_REGISTRY.get(getPath()).getMajorRealmName(majorRealm);
     }
     default Component getMinorRealmName(int majorRealm,int minorRealm){
         return AscensionRegistries.Paths.PATHS_REGISTRY.get(getPath()).getMinorRealmName(majorRealm,minorRealm);
     }
+
+
 
     default int getMaxMajorRealm(){
         return AscensionRegistries.Paths.PATHS_REGISTRY.get(getPath()).getMaxMajorRealm();
@@ -66,7 +72,13 @@ public interface ITechnique {
         return AscensionRegistries.Paths.PATHS_REGISTRY.get(getPath()).defaultForm();
     }
 
+    IStabilityHandler getStabilityHandler();
+
     ITechniqueData freshTechniqueData(IEntityData heldEntity);
-    ITechniqueData fromCompound(CompoundTag tag, IEntityData heldEntity);
-    ITechniqueData fromNetwork(RegistryFriendlyByteBuf buf, IEntityData heldEntity);
+    ITechniqueData fromCompound(CompoundTag tag);
+    ITechniqueData fromNetwork(RegistryFriendlyByteBuf buf);
+
+    IBreakthroughInstance freshBreakthroughData(IEntityData heldEntity);
+    IBreakthroughInstance breakthroughInstanceFromCompound(CompoundTag tag);
+    IBreakthroughInstance breakthroughInstanceFromNetwork(RegistryFriendlyByteBuf buf);
 }

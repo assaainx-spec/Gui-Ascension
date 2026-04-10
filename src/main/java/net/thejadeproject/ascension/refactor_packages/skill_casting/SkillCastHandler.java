@@ -1,8 +1,11 @@
 package net.thejadeproject.ascension.refactor_packages.skill_casting;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.thejadeproject.ascension.data_attachments.ModAttachments;
 import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.skill_casting.casting.CastEndData;
@@ -14,6 +17,7 @@ import net.thejadeproject.ascension.refactor_packages.skills.castable.CastType;
 import net.thejadeproject.ascension.refactor_packages.skills.castable.ICastableSkill;
 import net.thejadeproject.ascension.refactor_packages.skills.castable.IPersistentSkillInstance;
 import net.thejadeproject.ascension.refactor_packages.skills.castable.IPreCastData;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +26,7 @@ import java.util.List;
 public class SkillCastHandler {
 
 
-    private final CastingInstance castingInstance = new CastingInstance();;
+    private final CastingInstance castingInstance = new CastingInstance();
 
     private final ArrayList<PersistentCastingInstance> persistentCastingInstances = new ArrayList<>();
 
@@ -114,5 +118,19 @@ public class SkillCastHandler {
     }
     public SkillHotBar getHotBar(){
         return hotBar;
+    }
+
+    public CompoundTag write(){
+        CompoundTag tag = new CompoundTag();
+        getCooldownHandler().write(tag);
+        getHotBar().write(tag);
+        return tag;
+    }
+    public void read(CompoundTag tag){
+        getCooldownHandler().read(tag);
+        getHotBar().read(tag);
+    }
+    public void sync(Player player){
+        getHotBar().syncSlots(player);
     }
 }

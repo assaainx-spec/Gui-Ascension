@@ -77,6 +77,7 @@ public class GenericEntityData implements IEntityData {
 
         }
     }
+    //TODO add better error handling so an error does not delete all data
     public GenericEntityData(Entity attachedEntity, CompoundTag tag){
         System.out.println("creating player data");
         this.attachedEntity = attachedEntity.getUUID();
@@ -144,6 +145,7 @@ public class GenericEntityData implements IEntityData {
 
             //TODO add a cache for when the form does not yet exist
         }
+        getSkillCastHandler().read(tag.getCompound("skill_cast_handler"));
         getAscensionAttributeHolder().updateAttributes(this);
     }
     public void sync(Player player){
@@ -210,7 +212,7 @@ public class GenericEntityData implements IEntityData {
         tag.put("path_progress",pathDataTags);
 
 
-
+        tag.put("skill_cast_handler",getSkillCastHandler().write());
         //path data, make sure to also hold the path
     }
 
@@ -440,6 +442,24 @@ public class GenericEntityData implements IEntityData {
     public PathData getPathData(ResourceLocation path) {
         if(!pathDataLocation.containsKey(path)) return null;
         return heldFormData.get(pathDataLocation.get(path)).getPathData(path);//TODO
+    }
+
+    @Override
+    public Collection<ResourceLocation> getPathDataForms(ResourceLocation path) {
+        ArrayList<ResourceLocation> forms = new ArrayList<>();
+        for(ResourceLocation form : heldFormData.keySet()){
+            if(heldFormData.get(form).hasPathData(path)) forms.add(form);
+        }
+        return forms;
+    }
+
+    @Override
+    public Collection<PathData> getAllPathData() {
+        HashSet<PathData> data = new HashSet<>();
+        for(IEntityFormData formData : heldFormData.values()){
+            data.addAll(formData.getAllPathData());
+        }
+        return data;
     }
 
     @Override

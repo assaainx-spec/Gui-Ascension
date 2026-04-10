@@ -13,6 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.thejadeproject.ascension.AscensionCraft;
@@ -32,6 +33,7 @@ import net.thejadeproject.ascension.refactor_packages.skills.castable.ICastData;
 import net.thejadeproject.ascension.refactor_packages.skills.castable.ICastableSkill;
 import net.thejadeproject.ascension.refactor_packages.skills.castable.IPreCastData;
 import net.thejadeproject.ascension.refactor_packages.skills.custom.cultivation.skill_data.GenericCultivationSkillData;
+import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 import org.checkerframework.checker.guieffect.qual.UI;
 
 import java.util.Set;
@@ -141,9 +143,34 @@ public class GenericCultivationSkill implements ICastableSkill {
         if(!caster.hasData(ModAttachments.INPUT_STATES)) return false;
 
         if(!caster.level().isClientSide()){
-            //TODO handle cultivation event here
+
             System.out.println("Player is trying to cultivate");
             PathData pathData = caster.getData(ModAttachments.ENTITY_DATA).getPathData(path);
+
+            //TODO add a cultivate event
+            ITechnique technique = AscensionRegistries.Techniques.TECHNIQUES_REGISTRY.get(pathData.getLastUsedTechnique());
+            double amount = baseRate;
+
+
+            if(pathData.getCurrentRealmProgress()+amount >= technique.getMaxQiForRealm(pathData.getMajorRealm(),pathData.getMinorRealm())){
+                //TODO minor/major realm breakthrough shenanigans here
+                pathData.setCurrentRealmProgress(technique.getMaxQiForRealm(pathData.getMajorRealm(),pathData.getMinorRealm()));
+
+                if(pathData.getMinorRealm() < technique.getMaxMinorRealm(pathData.getMajorRealm()) && technique.canBreakthroughMinorRealm(
+                        caster.getData(ModAttachments.ENTITY_DATA),
+                        pathData.getMajorRealm(),
+                        pathData.getMinorRealm(),
+                        pathData.getCurrentRealmProgress()
+                )){
+                    pathData.handleRealmChange(pathData.getMajorRealm(),pathData.getMinorRealm()+1,caster.getData(ModAttachments.ENTITY_DATA));
+                } else if(pathData.getMajorRealm()<technique.getMaxMajorRealm() && technique.getStabilityHandler() != null && pathData.getCurrentRealmStability() < technique.getStabilityHandler().getMaxCultivationTicks()) {
+                    pathData.setCurrentRealmStability(pathData.getCurrentRealmStability()+1);
+                }
+            }else {
+                pathData.setCurrentRealmProgress(pathData.getCurrentRealmProgress()+amount);
+            }
+
+            if(caster instanceof Player player) pathData.sync(player);
 
         }
 

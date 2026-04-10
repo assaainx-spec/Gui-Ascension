@@ -22,10 +22,7 @@ import net.thejadeproject.ascension.refactor_packages.skills.IPersistentSkillDat
 import net.thejadeproject.ascension.refactor_packages.stats.custom.ModStats;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechniqueData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Stores all the data an entity would need that relates to cultivation and stats
@@ -87,6 +84,8 @@ public interface IEntityData {
     ResourceLocation getTechnique(ResourceLocation path);
     ITechniqueData getTechniqueData(ResourceLocation path);
     PathData getPathData(ResourceLocation path);
+    Collection<ResourceLocation> getPathDataForms(ResourceLocation path);
+    Collection<PathData> getAllPathData();
     ITechniqueData removeTechnique(ResourceLocation path);
     //techniques will check if the last used technique is compatible, if not will remove all cultivation
     //give some sort of warning beforehand?

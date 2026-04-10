@@ -15,6 +15,7 @@ import net.thejadeproject.ascension.refactor_packages.skill_casting.SkillCastHan
 import net.thejadeproject.ascension.refactor_packages.skills.IPersistentSkillData;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechniqueData;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -191,6 +192,16 @@ public class RemoteEntityData implements IEntityData{
     @Override
     public PathData getPathData(ResourceLocation path) {
         return null;
+    }
+
+    @Override
+    public Collection<ResourceLocation> getPathDataForms(ResourceLocation path) {
+        return List.of();
+    }
+
+    @Override
+    public Collection<PathData> getAllPathData() {
+        return List.of();
     }
 
     @Override

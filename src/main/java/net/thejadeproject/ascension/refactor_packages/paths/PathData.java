@@ -3,12 +3,18 @@ package net.thejadeproject.ascension.refactor_packages.paths;
 import net.minecraft.nbt.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.thejadeproject.ascension.data_attachments.ModAttachments;
 import net.thejadeproject.ascension.refactor_packages.breakthroughs.IBreakthroughInstance;
 import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.forms.IEntityFormData;
+import net.thejadeproject.ascension.refactor_packages.network.client_bound.entity_data.path_data.SyncPathData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechniqueData;
+import net.thejadeproject.ascension.refactor_packages.util.ByteBufHelper;
 import oshi.util.tuples.Pair;
 
 import java.util.*;
@@ -87,6 +93,7 @@ public class PathData {
     public ITechniqueData getTechniqueData(ResourceLocation technique){
         return techniqueData.get(technique);
     }
+
     //if you want to stability for when you breakthrough from 0-1 you put 0, since that is the realm you where stable in
     public int getStability(int realm){
         return realmStability.get(realm);
@@ -160,6 +167,7 @@ public class PathData {
         this.lastUsedTechnique = technique;
     }
     public void addTechniqueData(ResourceLocation technique,ITechniqueData techniqueData){
+        if(techniqueData == null) return;
         this.techniqueData.put(technique, techniqueData);
     }
     public ITechniqueData removeTechniqueData(ResourceLocation technique){
@@ -230,8 +238,8 @@ public class PathData {
         for(int i=0;i<techniqueData.size();i++){
             CompoundTag techniqueDataTag = techniqueData.getCompound(i);
             ResourceLocation techniqueId = ResourceLocation.bySeparator(techniqueDataTag.getString("technique"),':');
-            ITechniqueData techniqueDataInstance = AscensionRegistries.Techniques.TECHNIQUES_REGISTRY.get(techniqueId).fromCompound(techniqueDataTag.getCompound("data"),entityData);
-            cachedTechniqueData.put(techniqueId,techniqueDataInstance);
+            ITechniqueData techniqueDataInstance = AscensionRegistries.Techniques.TECHNIQUES_REGISTRY.get(techniqueId).fromCompound(techniqueDataTag.getCompound("data"));
+            if(techniqueDataInstance != null) cachedTechniqueData.put(techniqueId,techniqueDataInstance);
         }
         //simulate history
         for(int i =0;i<techniqueHistory.size();i++){
@@ -263,11 +271,77 @@ public class PathData {
 
     }
 
+    /**
+     *
+     * @param player the player this is attached to, not used for syncing other players
+     */
+    public void sync(Player player){
+        IEntityData entityData = player.getData(ModAttachments.ENTITY_DATA);
+        for(ResourceLocation form : entityData.getPathDataForms(getPath()))  PacketDistributor.sendToPlayer((ServerPlayer) player,new SyncPathData(form,this));
+
+    }
     //encodes full path data
     public void encode(RegistryFriendlyByteBuf buf){
         //TODO
+        buf.writeInt(majorRealm);
+        buf.writeInt(minorRealm);
+        buf.writeDouble(currentRealmProgress);
+        buf.writeInt(currentRealmStability);
+        buf.writeBoolean(cultivating);
+        buf.writeBoolean(lastUsedTechnique != null);
+        if(lastUsedTechnique != null) ByteBufHelper.encodeString(buf,lastUsedTechnique.toString());
+
+        //breakthrough stuff
+        buf.writeBoolean(breakingThrough);
+        buf.writeBoolean(breakthroughInstance != null);
+        if(breakthroughInstance != null){
+            breakthroughInstance.encode(buf);
+        }
+        buf.writeInt(realmStability.size());
+        for(Integer stability : realmStability){
+            buf.writeInt(stability);
+        }
+        buf.writeInt(techniqueHistory.size());
+        for(ResourceLocation technique:techniqueHistory){
+            ByteBufHelper.encodeString(buf,technique.toString());
+        }
+        buf.writeInt(techniqueData.size());
+        for(ResourceLocation technique:techniqueData.keySet()){
+            ByteBufHelper.encodeString(buf,technique.toString());
+            System.out.println("trying to write data for skill : "+technique.toString());
+            techniqueData.get(technique).encode(buf);
+        }
+
     }
     public void decode(RegistryFriendlyByteBuf buf){
         //TODO
+        majorRealm = buf.readInt();
+        minorRealm = buf.readInt();
+        currentRealmProgress = buf.readDouble();
+        currentRealmStability = buf.readInt();
+        cultivating = buf.readBoolean();
+        if(buf.readBoolean())lastUsedTechnique = ByteBufHelper.readResourceLocation(buf);
+
+        breakingThrough = buf.readBoolean();
+        if(buf.readBoolean()){
+            breakthroughInstance = AscensionRegistries.Techniques.TECHNIQUES_REGISTRY.get(lastUsedTechnique).breakthroughInstanceFromNetwork(buf);
+        }
+        int size = buf.readInt();
+        realmStability.clear();
+        for(int i=0;i<size;i++){
+            realmStability.add(buf.readInt());
+        }
+        size = buf.readInt();
+        techniqueHistory.clear();
+        for(int i=0;i<size;i++){
+            techniqueHistory.add(ByteBufHelper.readResourceLocation(buf));
+        }
+        size = buf.readInt();
+        techniqueData.clear();
+        for(int i =0;i<size;i++){
+            ResourceLocation technique = ByteBufHelper.readResourceLocation(buf);
+            ITechniqueData techniqueDataInstance = AscensionRegistries.Techniques.TECHNIQUES_REGISTRY.get(technique).fromNetwork(buf);
+            techniqueData.put(technique,techniqueDataInstance);
+        }
     }
 }

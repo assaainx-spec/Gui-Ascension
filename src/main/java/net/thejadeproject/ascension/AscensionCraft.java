@@ -307,6 +307,7 @@ public class AscensionCraft {
                 genericEntityData.sync(player);
                 genericEntityData.getAscensionAttributeHolder().log();
             }
+            player.getData(ModAttachments.ENTITY_DATA).getSkillCastHandler().sync(player);
 
         }
 

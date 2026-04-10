@@ -1,15 +1,21 @@
 package net.thejadeproject.ascension.refactor_packages.skill_casting;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.network.client_bound.entity_data.skills.casting.SyncSlot;
+import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 import net.thejadeproject.ascension.refactor_packages.skills.ISkill;
 import net.thejadeproject.ascension.refactor_packages.skills.castable.ICastableSkill;
 import net.thejadeproject.ascension.refactor_packages.skills.castable.IPreCastData;
+import org.checkerframework.checker.units.qual.C;
 
 public class SkillHotBar {
 
@@ -94,6 +100,32 @@ public class SkillHotBar {
      */
     public void refreshSkillSlots(IEntityData entityData){
         //TODO
+    }
+
+    public void write(CompoundTag tag){
+        ListTag hotBarTag = new ListTag();
+        for(int i = 0;i< skillSlots.length;i++){
+            if(skillSlots[i].isEmpty()) continue;
+            CompoundTag slotTag = new CompoundTag();
+            slotTag.putString("identifier",skillSlots[i].getSkillKey().toString());
+            if(skillSlots[i].getPreCastData() != null) slotTag.put("pre_cast_data",skillSlots[i].getPreCastData().write());
+            slotTag.putInt("slot",i);
+            hotBarTag.add(slotTag);
+        }
+        tag.put("hot_bar",hotBarTag);
+    }
+    public void read(CompoundTag tag){
+        ListTag hotBarTag = tag.getList("hot_bar", Tag.TAG_COMPOUND);
+        for(int i = 0;i< hotBarTag.size();i++){
+
+            CompoundTag slotTag = hotBarTag.getCompound(i);
+
+            ResourceLocation skillIdentifier = ResourceLocation.parse(slotTag.getString("identifier"));
+            int slot = slotTag.getInt("slot");
+            IPreCastData preCastData = null;
+            if(slotTag.contains("pre_cast_data"))  preCastData = ((ICastableSkill) AscensionRegistries.Skills.SKILL_REGISTRY.get(skillIdentifier)).preCastDataFromCompound(slotTag.getCompound("pre_cast_data"));
+            skillSlots[slot] = new HotBarSkillSlot(skillIdentifier,preCastData);
+        }
     }
 
 }

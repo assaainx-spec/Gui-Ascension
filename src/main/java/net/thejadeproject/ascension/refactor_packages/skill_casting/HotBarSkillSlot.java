@@ -15,6 +15,13 @@ public class HotBarSkillSlot {
 
     private boolean dirty;
 
+    public HotBarSkillSlot(){}
+    public HotBarSkillSlot(ResourceLocation skillKey,IPreCastData preCastData){
+        this.skillKey = skillKey;
+        this.preCastData = preCastData;
+        markDirty();
+    }
+
     public ISkill getSkill(){return AscensionRegistries.Skills.SKILL_REGISTRY.get(skillKey);};
 
     public boolean isEmpty(){return skillKey == null;}

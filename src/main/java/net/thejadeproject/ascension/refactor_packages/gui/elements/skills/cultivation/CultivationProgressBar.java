@@ -27,7 +27,7 @@ public class CultivationProgressBar extends RenderableElement {
             textureLocation,
             256,256,
             67,0,
-            135,11
+            135,21
     );
     ITextureData barContent;
     ResourceLocation path;

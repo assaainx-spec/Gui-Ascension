@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.thejadeproject.ascension.refactor_packages.breakthroughs.IBreakthroughInstance;
 import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.forms.IEntityFormData;
 import net.thejadeproject.ascension.refactor_packages.forms.forms.ModForms;
@@ -14,6 +15,8 @@ import net.thejadeproject.ascension.refactor_packages.skills.custom.ModSkills;
 import net.thejadeproject.ascension.refactor_packages.skills.custom.cultivation.skill_data.GenericCultivationSkillData;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechniqueData;
+import net.thejadeproject.ascension.refactor_packages.techniques.stability.IStabilityHandler;
+import net.thejadeproject.ascension.refactor_packages.techniques.stability.LnStabilityHandler;
 
 import java.util.Set;
 
@@ -24,7 +27,7 @@ public class GenericTechnique implements ITechnique {
     private Component description;
     private double baseRate;
     private Set<ResourceLocation> secondaryPaths;
-
+    private final IStabilityHandler stabilityHandler = new LnStabilityHandler();
     public GenericTechnique(ResourceLocation path,Component title,double baseRate,Set<ResourceLocation> secondaryPaths){
         this.path = path;
         this.title = title;
@@ -97,17 +100,37 @@ public class GenericTechnique implements ITechnique {
     }
 
     @Override
+    public IStabilityHandler getStabilityHandler() {
+        return stabilityHandler;
+    }
+
+    @Override
     public ITechniqueData freshTechniqueData(IEntityData heldEntity) {
         return null;
     }
 
     @Override
-    public ITechniqueData fromCompound(CompoundTag tag, IEntityData heldEntity) {
+    public ITechniqueData fromCompound(CompoundTag tag) {
         return null;
     }
 
     @Override
-    public ITechniqueData fromNetwork(RegistryFriendlyByteBuf buf, IEntityData heldEntity) {
+    public ITechniqueData fromNetwork(RegistryFriendlyByteBuf buf) {
+        return null;
+    }
+
+    @Override
+    public IBreakthroughInstance freshBreakthroughData(IEntityData heldEntity) {
+        return null;
+    }
+
+    @Override
+    public IBreakthroughInstance breakthroughInstanceFromCompound(CompoundTag tag) {
+        return null;
+    }
+
+    @Override
+    public IBreakthroughInstance breakthroughInstanceFromNetwork(RegistryFriendlyByteBuf buf) {
         return null;
     }
 }

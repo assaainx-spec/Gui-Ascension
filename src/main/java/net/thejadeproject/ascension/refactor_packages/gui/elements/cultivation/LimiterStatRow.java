@@ -2,9 +2,6 @@ package net.thejadeproject.ascension.refactor_packages.gui.elements.cultivation;
 
 import net.lucent.easygui.gui.RenderableElement;
 import net.lucent.easygui.gui.UIFrame;
-import net.lucent.easygui.gui.events.EasyEvents;
-import net.lucent.easygui.gui.events.type.EasyEvent;
-import net.lucent.easygui.gui.events.type.EasyMouseEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.phys.Vec2;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.cultivation.UpdateSuppressionValue;
@@ -31,25 +27,17 @@ public class LimiterStatRow extends RenderableElement {
         this.label = label;
         this.attribute = attribute;
         this.attributeId = attributeId;
-        setWidth(175);
+        setWidth(148);
         setHeight(12);
-        addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
     }
 
-    private void onMouseDown(EasyEvent event) {
-        if (!(event instanceof EasyMouseEvent mouseEvent)) return;
-        Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
-        double mouseX = local.x;
-        double mouseY = local.y;
-
+    public void tryClick(double lx, double ly) {
         int plusX = getWidth() - 11;
         int minusX = plusX - 13;
-        if (mouseX >= minusX && mouseX <= minusX + 8 && mouseY >= 1 && mouseY <= 11) {
+        if (lx >= minusX && lx <= minusX + 8 && ly >= 1 && ly <= 11) {
             changeSuppression(getStep());
-            event.setCanceled(true);
-        } else if (mouseX >= plusX && mouseX <= plusX + 8 && mouseY >= 1 && mouseY <= 11) {
+        } else if (lx >= plusX && lx <= plusX + 8 && ly >= 1 && ly <= 11) {
             changeSuppression(-getStep());
-            event.setCanceled(true);
         }
     }
 
@@ -78,17 +66,13 @@ public class LimiterStatRow extends RenderableElement {
         super.render(gfx, mouseX, mouseY, partialTick);
         AttributeInstance inst = Minecraft.getInstance().player.getAttribute(attribute);
         String realStr = inst == null ? "—" : String.format("%.2f", inst.getValue());
-        double suppression = getCurrentSuppression();
-        String suppStr = String.format("%.1f%%", suppression * 100.0);
 
         var font = Minecraft.getInstance().font;
         int plusX = getWidth() - 11;
         int minusX = plusX - 13;
-        int suppStrX = minusX - font.width(suppStr) - 4;
 
         gfx.drawString(font, label, 0, 2, 0xFFAAAAAA, false);
         gfx.drawString(font, realStr, 82, 2, 0xFFFFFFFF, false);
-        gfx.drawString(font, suppStr, suppStrX, 2, 0xFFFFDD88, false);
 
         // − button (suppress more / lower stat)
         gfx.fill(minusX, 1, minusX + 8, 11, 0xFF222222);

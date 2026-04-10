@@ -10,6 +10,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
+import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 
@@ -23,9 +24,8 @@ public class TechniquePopup extends RenderableElement {
 
     public TechniquePopup(UIFrame frame) {
         super(frame);
-        setWidth(135);
+        setWidth(100);
         setHeight(180);
-
         addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
     }
 
@@ -40,11 +40,8 @@ public class TechniquePopup extends RenderableElement {
     private void onMouseDown(EasyEvent event) {
         if (!(event instanceof EasyMouseEvent mouseEvent)) return;
         Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
-        // close button: top-right corner, x=width-18, y=2, w=14, h=12
-        int bx = getWidth() - 18;
-        double mx = local.x;
-        double my = local.y;
-        if (mx >= bx && mx <= bx + 14 && my >= 2 && my <= 14) {
+        int bx = getWidth() - 12;
+        if (local.x >= bx && local.x < bx + 10 && local.y >= 2 && local.y < 12) {
             if (onClose != null) onClose.run();
             event.setCanceled(true);
         }
@@ -57,17 +54,13 @@ public class TechniquePopup extends RenderableElement {
         for (String word : words) {
             String candidate = current.isEmpty() ? word : current + " " + word;
             if (font.width(candidate) > maxWidth) {
-                if (!current.isEmpty()) {
-                    lines.add(current.toString());
-                }
+                if (!current.isEmpty()) lines.add(current.toString());
                 current = new StringBuilder(word);
             } else {
                 current = new StringBuilder(candidate);
             }
         }
-        if (!current.isEmpty()) {
-            lines.add(current.toString());
-        }
+        if (!current.isEmpty()) lines.add(current.toString());
         return lines;
     }
 
@@ -76,69 +69,37 @@ public class TechniquePopup extends RenderableElement {
         int w = getWidth();
         int h = getHeight();
 
-        // background
-        gfx.fill(0, 0, w, h, 0xE1050810);
-
-        // border
-        gfx.fill(0, 0, w, 1, 0xFFC8960A);
-        gfx.fill(0, h - 1, w, h, 0xFFC8960A);
-        gfx.fill(0, 0, 1, h, 0xFFC8960A);
-        gfx.fill(w - 1, 0, w, h, 0xFFC8960A);
+        Font font = Minecraft.getInstance().font;
+        String title = technique == null ? "Technique" : technique.getDisplayTitle().getString();
+        PathDetailPanel.drawChrome(gfx, font, w, h, title);
 
         if (technique == null) {
             super.render(gfx, mouseX, mouseY, partialTick);
             return;
         }
 
-        Font font = Minecraft.getInstance().font;
-
-        // --- header ---
-        String title = technique.getDisplayTitle().getString();
-        gfx.drawString(font, title, 6, 5, 0xFFF0B800, false);
-
-        // close button
-        int bx = w - 18;
-        gfx.fill(bx, 2, bx + 14, 14, 0x4C961414);
-        gfx.fill(bx, 2, bx + 14, 3, 0xFFCC4444);
-        gfx.fill(bx, 13, bx + 14, 14, 0xFFCC4444);
-        gfx.fill(bx, 2, bx + 1, 14, 0xFFCC4444);
-        gfx.fill(bx + 13, 2, bx + 14, 14, 0xFFCC4444);
-        gfx.drawString(font, "\u00d7", bx + 4, 4, 0xFFFF8888, false);
-
-        // divider 1
-        gfx.fill(4, 18, w - 4, 19, 0x55C8960A);
-
         int y = 23;
 
-        // --- path ---
         String rawPath = technique.getPath().getPath();
-        String pathValue = rawPath.isEmpty() ? rawPath
-                : Character.toUpperCase(rawPath.charAt(0)) + rawPath.substring(1);
+        String pathValue = rawPath.isEmpty() ? rawPath : Character.toUpperCase(rawPath.charAt(0)) + rawPath.substring(1);
         gfx.drawString(font, "Path", 6, y, 0xFFAAAAAA, false);
         gfx.drawString(font, pathValue, 6 + font.width("Path") + 4, y, 0xFFFFFFFF, false);
         y += 12;
 
-        // --- description ---
         gfx.drawString(font, "Description", 6, y, 0xFFAAAAAA, false);
         y += 11;
-        int textMaxWidth = w - 12;
-        String desc = technique.getShortDescription().getString();
-        List<String> lines = wrapText(desc, font, textMaxWidth);
-        for (String line : lines) {
+        for (String line : wrapText(technique.getShortDescription().getString(), font, w - 12)) {
             gfx.drawString(font, line, 6, y, 0xFFCCCCCC, false);
             y += 10;
         }
 
-        // divider 2
         y += 2;
-        gfx.fill(4, y, w - 4, y + 1, 0x55C8960A);
+        gfx.fill(4, y, w - 4, y + 1, 0x55006396);
         y += 5;
 
-        // --- max realm ---
         int maxMajor = technique.getMaxMajorRealm();
         int maxMinor = technique.getMaxMinorRealm(maxMajor);
-        String realmName = technique.getMajorRealmName(maxMajor).getString();
-        String realmValue = realmName + " (" + maxMajor + " \u00b7 " + maxMinor + ")";
+        String realmValue = technique.getMajorRealmName(maxMajor).getString() + " (" + maxMajor + " \u00b7 " + maxMinor + ")";
         gfx.drawString(font, "Max Realm", 6, y, 0xFFAAAAAA, false);
         y += 11;
         gfx.drawString(font, realmValue, 6, y, 0xFFFFFFFF, false);

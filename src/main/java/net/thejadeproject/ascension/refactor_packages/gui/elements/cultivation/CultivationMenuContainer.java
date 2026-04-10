@@ -188,8 +188,6 @@ public class CultivationMenuContainer extends RenderableElement {
                 return;
             }
 
-            boolean inTitleBar = mx >= panelX && mx < panelX + activePanel.getWidth()
-                    && my >= panelY && my < panelY + TAB_H;
         }
 
         // Sidebar tab clicks

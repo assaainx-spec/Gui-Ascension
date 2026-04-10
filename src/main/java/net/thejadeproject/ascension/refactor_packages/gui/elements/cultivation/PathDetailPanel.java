@@ -171,9 +171,7 @@ public class PathDetailPanel extends RenderableElement {
     }
 
     static void drawChrome(GuiGraphics gfx, Font font, int w, int h, String title) {
-        // Background
         gfx.fill(0, 0, w, h, 0xE8050810);
-        // Outer border
         gfx.fill(0, 0, w, 1, 0xFF4FC3F7);
         gfx.fill(0, h - 1, w, h, 0xFF4FC3F7);
         gfx.fill(0, 0, 1, h, 0xFF4FC3F7);
@@ -188,22 +186,21 @@ public class PathDetailPanel extends RenderableElement {
         gfx.fill(w - 6, h - 2, w, h, 0xFF4FC3F7);
         gfx.fill(w - 2, h - 6, w, h, 0xFF4FC3F7);
         // Inner border
-        gfx.fill(2, 2, w - 2, 3, 0xFF1a4a6a);
-        gfx.fill(2, h - 3, w - 2, h - 2, 0xFF1a4a6a);
-        gfx.fill(2, 2, 3, h - 2, 0xFF1a4a6a);
-        gfx.fill(w - 3, 2, w - 2, h - 2, 0xFF1a4a6a);
+        gfx.fill(2, 2, w - 2, 3, 0xFF1A4A6A);
+        gfx.fill(2, h - 3, w - 2, h - 2, 0xFF1A4A6A);
+        gfx.fill(2, 2, 3, h - 2, 0xFF1A4A6A);
+        gfx.fill(w - 3, 2, w - 2, h - 2, 0xFF1A4A6A);
         // Title bar fill + bottom divider
         gfx.fill(1, 1, w - 1, 14, 0xDD001E30);
         gfx.fill(1, 13, w - 1, 14, 0xFF4FC3F7);
-        // Title text
         gfx.drawString(font, title, 5, 3, 0xFF4FC3F7, false);
         // × close button
-        gfx.fill(w - 12, 2, w - 2, 12, 0xFF3a0808);
-        gfx.fill(w - 12, 2, w - 2, 3, 0xFFaa2222);
-        gfx.fill(w - 12, 11, w - 2, 12, 0xFFaa2222);
-        gfx.fill(w - 12, 2, w - 11, 12, 0xFFaa2222);
-        gfx.fill(w - 3, 2, w - 2, 12, 0xFFaa2222);
-        gfx.drawString(font, "\u00d7", w - 11, 3, 0xFFff5555, false);
+        gfx.fill(w - 12, 2, w - 2, 12, 0xFF3A0808);
+        gfx.fill(w - 12, 2, w - 2, 3, 0xFFAA2222);
+        gfx.fill(w - 12, 11, w - 2, 12, 0xFFAA2222);
+        gfx.fill(w - 12, 2, w - 11, 12, 0xFFAA2222);
+        gfx.fill(w - 3, 2, w - 2, 12, 0xFFAA2222);
+        gfx.drawString(font, "\u00d7", w - 11, 3, 0xFFFF5555, false);
         // Inner content frame: corner brackets + thin connectors
         int f = 3, ft = 16, fb = h - 3, bl = 12;
         gfx.fill(f + bl, ft,     w - f - bl, ft + 1, 0x664FC3F7);

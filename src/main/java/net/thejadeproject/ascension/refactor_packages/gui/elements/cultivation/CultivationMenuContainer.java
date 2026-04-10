@@ -41,6 +41,8 @@ public class CultivationMenuContainer extends RenderableElement {
     private boolean statsSelected = false;
     private boolean techniquesSelected = false;
     private boolean physiqueSelected = false;
+    private RenderableElement rightSlotPanel = null;
+    private RenderableElement leftSlotPanel = null;
 
 
     public CultivationMenuContainer(UIFrame frame) {
@@ -74,13 +76,9 @@ public class CultivationMenuContainer extends RenderableElement {
         statsPanel.setActive(false);
 
         techniquesPanel = new TechniquesPanel(frame);
-        techniquesPanel.getPositioning().setX(SIDEBAR_W - 1);
-        techniquesPanel.getPositioning().setY(0);
         techniquesPanel.setActive(false);
 
         physiquePanel = new PhysiquePanel(frame);
-        physiquePanel.getPositioning().setX(SIDEBAR_W - 1);
-        physiquePanel.getPositioning().setY(0);
         physiquePanel.setActive(false);
 
         addChild(pathPanel);
@@ -101,65 +99,72 @@ public class CultivationMenuContainer extends RenderableElement {
     private void selectPath(ResourceLocation pathId) {
         selectedPath = pathId;
         statsSelected = false;
-        techniquesSelected = false;
-        physiqueSelected = false;
         pathPanel.setPath(pathId);
         pathPanel.setActive(true);
         statsPanel.setActive(false);
-        techniquesPanel.setActive(false);
-        physiquePanel.setActive(false);
     }
 
     private void selectStats() {
         selectedPath = null;
         statsSelected = true;
-        techniquesSelected = false;
-        physiqueSelected = false;
         statsPanel.setActive(true);
         pathPanel.setActive(false);
-        techniquesPanel.setActive(false);
-        physiquePanel.setActive(false);
     }
 
     private void selectTechniques() {
-        selectedPath = null;
-        statsSelected = false;
-        techniquesSelected = true;
-        physiqueSelected = false;
-        techniquesPanel.setActive(true);
-        statsPanel.setActive(false);
-        pathPanel.setActive(false);
-        physiquePanel.setActive(false);
+        toggleSidePanel(techniquesPanel);
+        techniquesSelected = (rightSlotPanel == techniquesPanel) || (leftSlotPanel == techniquesPanel);
     }
 
     private void selectPhysique() {
-        selectedPath = null;
-        statsSelected = false;
-        techniquesSelected = false;
-        physiqueSelected = true;
-        physiquePanel.setActive(true);
-        statsPanel.setActive(false);
-        pathPanel.setActive(false);
-        techniquesPanel.setActive(false);
+        toggleSidePanel(physiquePanel);
+        physiqueSelected = (rightSlotPanel == physiquePanel) || (leftSlotPanel == physiquePanel);
     }
 
     private void selectNone() {
         selectedPath = null;
         statsSelected = false;
-        techniquesSelected = false;
-        physiqueSelected = false;
         pathPanel.setActive(false);
         statsPanel.setActive(false);
-        techniquesPanel.setActive(false);
-        physiquePanel.setActive(false);
         techniquePopup.setActive(false);
+    }
+
+    private void toggleSidePanel(RenderableElement panel) {
+        if (panel == rightSlotPanel) {
+            rightSlotPanel = null;
+            panel.setActive(false);
+        } else if (panel == leftSlotPanel) {
+            leftSlotPanel = null;
+            panel.setActive(false);
+        } else if (rightSlotPanel == null) {
+            rightSlotPanel = panel;
+            panel.getPositioning().setX(WIDTH);
+            panel.getPositioning().setY(0);
+            panel.setActive(true);
+            registerCloseCallback(panel);
+        } else if (leftSlotPanel == null) {
+            leftSlotPanel = panel;
+            panel.getPositioning().setX(-panel.getWidth());
+            panel.getPositioning().setY(0);
+            panel.setActive(true);
+            registerCloseCallback(panel);
+        }
+    }
+
+    private void registerCloseCallback(RenderableElement panel) {
+        if (panel instanceof TechniquesPanel tp) tp.setOnClose(() -> {
+            toggleSidePanel(panel);
+            techniquesSelected = false;
+        });
+        else if (panel instanceof PhysiquePanel pp) pp.setOnClose(() -> {
+            toggleSidePanel(panel);
+            physiqueSelected = false;
+        });
     }
 
     private RenderableElement activeContentPanel() {
         if (selectedPath != null) return pathPanel;
         if (statsSelected) return statsPanel;
-        if (techniquesSelected) return techniquesPanel;
-        if (physiqueSelected) return physiquePanel;
         return null;
     }
 

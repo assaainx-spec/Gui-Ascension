@@ -11,6 +11,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
+import net.thejadeproject.ascension.data_attachments.ModAttachments;
+import net.thejadeproject.ascension.refactor_packages.entity_data.IEntityData;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 
 import java.util.ArrayList;
@@ -18,11 +20,12 @@ import java.util.List;
 
 public class CultivationMenuContainer extends RenderableElement {
 
-    private static final int WIDTH = 263;
+    private static final int WIDTH = 228;
     private static final int HEIGHT = 180;
     private static final int SIDEBAR_W = 68;
-    private static final int PANEL_W = 195;
+    private static final int PANEL_W = 160;
     private static final int TAB_H = 14;
+    private static final int BOTTOM_TAB_H = 11;
     private static final int TAB_GAP = 2;
     private static final int TAB_X = 3;
     private static final int TAB_W = SIDEBAR_W - 6;
@@ -30,10 +33,15 @@ public class CultivationMenuContainer extends RenderableElement {
     private final List<ResourceLocation> pathTabs = new ArrayList<>();
     private final PathDetailPanel pathPanel;
     private final StatsPanel statsPanel;
+    private final TechniquesPanel techniquesPanel;
+    private final PhysiquePanel physiquePanel;
     private final TechniquePopup techniquePopup;
 
     private ResourceLocation selectedPath = null;
     private boolean statsSelected = false;
+    private boolean techniquesSelected = false;
+    private boolean physiqueSelected = false;
+
 
     public CultivationMenuContainer(UIFrame frame) {
         super(frame);
@@ -43,29 +51,44 @@ public class CultivationMenuContainer extends RenderableElement {
         setWidth(WIDTH);
         setHeight(HEIGHT);
 
-        // show all registered paths
-        pathTabs.addAll(AscensionRegistries.Paths.PATHS_REGISTRY.keySet());
+        IEntityData entityData = Minecraft.getInstance().player.getData(ModAttachments.ENTITY_DATA);
+        for (ResourceLocation pathId : AscensionRegistries.Paths.PATHS_REGISTRY.keySet()) {
+            if (entityData != null && entityData.hasPath(pathId)) {
+                pathTabs.add(pathId);
+            }
+        }
 
         techniquePopup = new TechniquePopup(frame);
-        techniquePopup.getPositioning().setX(SIDEBAR_W + PANEL_W + 4);
+        techniquePopup.getPositioning().setX(SIDEBAR_W - 1);
         techniquePopup.getPositioning().setY(0);
         techniquePopup.setActive(false);
 
         pathPanel = new PathDetailPanel(frame, techniquePopup);
-        pathPanel.getPositioning().setX(SIDEBAR_W);
+        pathPanel.getPositioning().setX(SIDEBAR_W - 1);
         pathPanel.getPositioning().setY(0);
         pathPanel.setActive(false);
 
         statsPanel = new StatsPanel(frame);
-        statsPanel.getPositioning().setX(SIDEBAR_W);
+        statsPanel.getPositioning().setX(SIDEBAR_W - 1);
         statsPanel.getPositioning().setY(0);
         statsPanel.setActive(false);
 
+        techniquesPanel = new TechniquesPanel(frame);
+        techniquesPanel.getPositioning().setX(SIDEBAR_W - 1);
+        techniquesPanel.getPositioning().setY(0);
+        techniquesPanel.setActive(false);
+
+        physiquePanel = new PhysiquePanel(frame);
+        physiquePanel.getPositioning().setX(SIDEBAR_W - 1);
+        physiquePanel.getPositioning().setY(0);
+        physiquePanel.setActive(false);
+
         addChild(pathPanel);
         addChild(statsPanel);
+        addChild(techniquesPanel);
+        addChild(physiquePanel);
         addChild(techniquePopup);
 
-        // select first path, or stats if none
         if (!pathTabs.isEmpty()) {
             selectPath(pathTabs.get(0));
         } else {
@@ -78,18 +101,66 @@ public class CultivationMenuContainer extends RenderableElement {
     private void selectPath(ResourceLocation pathId) {
         selectedPath = pathId;
         statsSelected = false;
+        techniquesSelected = false;
+        physiqueSelected = false;
         pathPanel.setPath(pathId);
         pathPanel.setActive(true);
         statsPanel.setActive(false);
-        techniquePopup.setActive(false);
+        techniquesPanel.setActive(false);
+        physiquePanel.setActive(false);
     }
 
     private void selectStats() {
         selectedPath = null;
         statsSelected = true;
+        techniquesSelected = false;
+        physiqueSelected = false;
         statsPanel.setActive(true);
         pathPanel.setActive(false);
+        techniquesPanel.setActive(false);
+        physiquePanel.setActive(false);
+    }
+
+    private void selectTechniques() {
+        selectedPath = null;
+        statsSelected = false;
+        techniquesSelected = true;
+        physiqueSelected = false;
+        techniquesPanel.setActive(true);
+        statsPanel.setActive(false);
+        pathPanel.setActive(false);
+        physiquePanel.setActive(false);
+    }
+
+    private void selectPhysique() {
+        selectedPath = null;
+        statsSelected = false;
+        techniquesSelected = false;
+        physiqueSelected = true;
+        physiquePanel.setActive(true);
+        statsPanel.setActive(false);
+        pathPanel.setActive(false);
+        techniquesPanel.setActive(false);
+    }
+
+    private void selectNone() {
+        selectedPath = null;
+        statsSelected = false;
+        techniquesSelected = false;
+        physiqueSelected = false;
+        pathPanel.setActive(false);
+        statsPanel.setActive(false);
+        techniquesPanel.setActive(false);
+        physiquePanel.setActive(false);
         techniquePopup.setActive(false);
+    }
+
+    private RenderableElement activeContentPanel() {
+        if (selectedPath != null) return pathPanel;
+        if (statsSelected) return statsPanel;
+        if (techniquesSelected) return techniquesPanel;
+        if (physiqueSelected) return physiquePanel;
+        return null;
     }
 
     private void onMouseDown(EasyEvent event) {
@@ -98,7 +169,25 @@ public class CultivationMenuContainer extends RenderableElement {
         double mx = local.x;
         double my = local.y;
 
-        // check path tabs
+        // Title-bar interaction on the active content panel
+        RenderableElement activePanel = activeContentPanel();
+        if (activePanel != null) {
+            int panelX = activePanel.getPositioning().getX();
+            int panelY = activePanel.getPositioning().getY();
+
+            // × close button (rightmost 10px, y=2..12 in panel)
+            int closeBx = panelX + activePanel.getWidth() - 12;
+            if (mx >= closeBx && mx < closeBx + 10 && my >= panelY + 2 && my < panelY + 12) {
+                selectNone();
+                event.setCanceled(true);
+                return;
+            }
+
+            boolean inTitleBar = mx >= panelX && mx < panelX + activePanel.getWidth()
+                    && my >= panelY && my < panelY + TAB_H;
+        }
+
+        // Sidebar tab clicks
         int tabsStartY = 19;
         for (int i = 0; i < pathTabs.size(); i++) {
             int tabY = tabsStartY + i * (TAB_H + TAB_GAP);
@@ -109,40 +198,69 @@ public class CultivationMenuContainer extends RenderableElement {
             }
         }
 
-        // check stats tab
-        int statsTabY = HEIGHT - TAB_H - 6;
-        if (mx >= TAB_X && mx <= TAB_X + TAB_W && my >= statsTabY && my <= statsTabY + TAB_H) {
+        int statsTabY = HEIGHT - BOTTOM_TAB_H - 4;
+        int physiqueTabY = statsTabY - BOTTOM_TAB_H - TAB_GAP;
+        int techniquesTabY = physiqueTabY - BOTTOM_TAB_H - TAB_GAP;
+
+        if (mx >= TAB_X && mx <= TAB_X + TAB_W && my >= techniquesTabY && my <= techniquesTabY + BOTTOM_TAB_H) {
+            selectTechniques();
+            event.setCanceled(true);
+            return;
+        }
+        if (mx >= TAB_X && mx <= TAB_X + TAB_W && my >= physiqueTabY && my <= physiqueTabY + BOTTOM_TAB_H) {
+            selectPhysique();
+            event.setCanceled(true);
+            return;
+        }
+        if (mx >= TAB_X && mx <= TAB_X + TAB_W && my >= statsTabY && my <= statsTabY + BOTTOM_TAB_H) {
             selectStats();
             event.setCanceled(true);
+            return;
         }
+
+        // Delegate content clicks to the active panel using its actual position
+        if (activePanel != null) {
+            int panelX = activePanel.getPositioning().getX();
+            int panelY = activePanel.getPositioning().getY();
+            double px = mx - panelX;
+            double py = my - panelY;
+            if (px >= 0 && px < activePanel.getWidth() && py >= 0 && py < activePanel.getHeight()) {
+                if (statsSelected) statsPanel.tryClick(px, py);
+                else if (selectedPath != null) pathPanel.tryClick(px, py);
+            }
+        }
+        event.setCanceled(true);
     }
 
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         Font font = Minecraft.getInstance().font;
 
-        // outer frame background
         gfx.fill(0, 0, WIDTH, HEIGHT, 0xD1050810);
+        gfx.fill(2, 2, SIDEBAR_W, HEIGHT - 2, 0x88050810);
+        gfx.fill(0, 0, WIDTH, 1, 0xFF4FC3F7);
+        gfx.fill(0, HEIGHT - 1, WIDTH, HEIGHT, 0xFF4FC3F7);
+        gfx.fill(0, 0, 1, HEIGHT, 0xFF4FC3F7);
+        gfx.fill(WIDTH - 1, 0, WIDTH, HEIGHT, 0xFF4FC3F7);
+        // Corner accents
+        gfx.fill(0, 0, 6, 2, 0xFF4FC3F7);
+        gfx.fill(0, 0, 2, 6, 0xFF4FC3F7);
+        gfx.fill(WIDTH - 6, 0, WIDTH, 2, 0xFF4FC3F7);
+        gfx.fill(WIDTH - 2, 0, WIDTH, 6, 0xFF4FC3F7);
+        gfx.fill(0, HEIGHT - 2, 6, HEIGHT, 0xFF4FC3F7);
+        gfx.fill(0, HEIGHT - 6, 2, HEIGHT, 0xFF4FC3F7);
+        gfx.fill(WIDTH - 6, HEIGHT - 2, WIDTH, HEIGHT, 0xFF4FC3F7);
+        gfx.fill(WIDTH - 2, HEIGHT - 6, WIDTH, HEIGHT, 0xFF4FC3F7);
+        // Inner border
+        gfx.fill(2, 2, WIDTH - 2, 3, 0xFF1A4A6A);
+        gfx.fill(2, HEIGHT - 3, WIDTH - 2, HEIGHT - 2, 0xFF1A4A6A);
+        gfx.fill(2, 2, 3, HEIGHT - 2, 0xFF1A4A6A);
+        gfx.fill(WIDTH - 3, 2, WIDTH - 2, HEIGHT - 2, 0xFF1A4A6A);
+        // PATHS header underline
+        gfx.fill(1, 17, SIDEBAR_W, 18, 0xFF4FC3F7);
 
-        // outer border (2px thick, 4 sides)
-        gfx.fill(0, 0, WIDTH, 2, 0xFFC8960A);
-        gfx.fill(0, HEIGHT - 2, WIDTH, HEIGHT, 0xFFC8960A);
-        gfx.fill(0, 0, 2, HEIGHT, 0xFFC8960A);
-        gfx.fill(WIDTH - 2, 0, WIDTH, HEIGHT, 0xFFC8960A);
+        gfx.drawString(font, "PATHS", 6, 6, 0xFF4FC3F7, false);
 
-        // sidebar background
-        gfx.fill(2, 2, SIDEBAR_W - 2, HEIGHT - 2, 0x88050810);
-
-        // sidebar/panel divider
-        gfx.fill(SIDEBAR_W - 1, 0, SIDEBAR_W, HEIGHT, 0x66C8960A);
-
-        // "PATHS" label
-        gfx.drawString(font, "PATHS", 6, 6, 0xFFF0B800, false);
-
-        // thin divider under PATHS label
-        gfx.fill(4, 15, SIDEBAR_W - 4, 16, 0x55C8960A);
-
-        // path tabs
         int tabsStartY = 19;
         for (int i = 0; i < pathTabs.size(); i++) {
             ResourceLocation pathId = pathTabs.get(i);
@@ -150,48 +268,53 @@ public class CultivationMenuContainer extends RenderableElement {
             boolean active = pathId.equals(selectedPath);
 
             if (active) {
-                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x2EC8960A);
-                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0xFFC8960A);
-                gfx.fill(TAB_X, tabY + TAB_H - 1, TAB_X + TAB_W, tabY + TAB_H, 0xFFC8960A);
-                gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + TAB_H, 0xFFC8960A);
-                gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + TAB_H, 0xFFC8960A);
+                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x2E006396);
+                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0xFF006396);
+                gfx.fill(TAB_X, tabY + TAB_H - 1, TAB_X + TAB_W, tabY + TAB_H, 0xFF006396);
+                gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + TAB_H, 0xFF006396);
+                gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + TAB_H, 0xFF006396);
             } else {
                 gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x18050810);
-                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0x44C8960A);
-                gfx.fill(TAB_X, tabY + TAB_H - 1, TAB_X + TAB_W, tabY + TAB_H, 0x44C8960A);
-                gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + TAB_H, 0x44C8960A);
-                gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x44C8960A);
+                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0x44006396);
+                gfx.fill(TAB_X, tabY + TAB_H - 1, TAB_X + TAB_W, tabY + TAB_H, 0x44006396);
+                gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + TAB_H, 0x44006396);
+                gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x44006396);
             }
 
             String rawName = pathId.getPath();
-            String name = rawName.isEmpty() ? rawName
-                    : Character.toUpperCase(rawName.charAt(0)) + rawName.substring(1);
-            String label = active ? "\u25b6 " + name : "  " + name;
-            int color = active ? 0xFFF0B800 : 0xFF888888;
-            gfx.drawString(font, label, TAB_X + 3, tabY + (TAB_H - 8) / 2, color, false);
+            String name = rawName.isEmpty() ? rawName : Character.toUpperCase(rawName.charAt(0)) + rawName.substring(1);
+            gfx.drawString(font, name, TAB_X + 3, tabY + (TAB_H - 8) / 2, active ? 0xFF4FC3F7 : 0xFF888888, false);
         }
 
-        // stats tab pinned to bottom
-        int statsTabY = HEIGHT - TAB_H - 6;
-        if (statsSelected) {
-            gfx.fill(TAB_X, statsTabY, TAB_X + TAB_W, statsTabY + TAB_H, 0x2EC8960A);
-            gfx.fill(TAB_X, statsTabY, TAB_X + TAB_W, statsTabY + 1, 0xFFC8960A);
-            gfx.fill(TAB_X, statsTabY + TAB_H - 1, TAB_X + TAB_W, statsTabY + TAB_H, 0xFFC8960A);
-            gfx.fill(TAB_X, statsTabY, TAB_X + 1, statsTabY + TAB_H, 0xFFC8960A);
-            gfx.fill(TAB_X + TAB_W - 1, statsTabY, TAB_X + TAB_W, statsTabY + TAB_H, 0xFFC8960A);
-            gfx.drawString(font, "\u25b6 Stats", TAB_X + 3, statsTabY + (TAB_H - 8) / 2, 0xFFF0B800, false);
-        } else {
-            gfx.fill(TAB_X, statsTabY, TAB_X + TAB_W, statsTabY + TAB_H, 0x18050810);
-            gfx.fill(TAB_X, statsTabY, TAB_X + TAB_W, statsTabY + 1, 0x44C8960A);
-            gfx.fill(TAB_X, statsTabY + TAB_H - 1, TAB_X + TAB_W, statsTabY + TAB_H, 0x44C8960A);
-            gfx.fill(TAB_X, statsTabY, TAB_X + 1, statsTabY + TAB_H, 0x44C8960A);
-            gfx.fill(TAB_X + TAB_W - 1, statsTabY, TAB_X + TAB_W, statsTabY + TAB_H, 0x44C8960A);
-            gfx.drawString(font, "  Stats", TAB_X + 3, statsTabY + (TAB_H - 8) / 2, 0xFF888888, false);
-        }
+        // bottom tabs: Techniques, Physique, Stats
+        int statsTabY = HEIGHT - BOTTOM_TAB_H - 4;
+        int physiqueTabY = statsTabY - BOTTOM_TAB_H - TAB_GAP;
+        int techniquesTabY = physiqueTabY - BOTTOM_TAB_H - TAB_GAP;
+
+        renderBottomTab(gfx, font, techniquesTabY, "Techniques", techniquesSelected);
+        renderBottomTab(gfx, font, physiqueTabY, "Physique", physiqueSelected);
+        renderBottomTab(gfx, font, statsTabY, "Stats", statsSelected);
 
         super.render(gfx, mouseX, mouseY, partialTick);
+    }
 
-        // popup visibility sync
-        techniquePopup.setActive(pathPanel.isActive() && pathPanel.isPopupVisible());
+    private void renderBottomTab(GuiGraphics gfx, Font font, int tabY, String label, boolean active) {
+        int h = BOTTOM_TAB_H;
+        int textY = tabY + (h - 8) / 2;
+        if (active) {
+            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + h, 0x2E006396);
+            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0xFF006396);
+            gfx.fill(TAB_X, tabY + h - 1, TAB_X + TAB_W, tabY + h, 0xFF006396);
+            gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + h, 0xFF006396);
+            gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + h, 0xFF006396);
+            gfx.drawString(font, label, TAB_X + 3, textY, 0xFF4FC3F7, false);
+        } else {
+            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + h, 0x18050810);
+            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0x44006396);
+            gfx.fill(TAB_X, tabY + h - 1, TAB_X + TAB_W, tabY + h, 0x44006396);
+            gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + h, 0x44006396);
+            gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + h, 0x44006396);
+            gfx.drawString(font, label, TAB_X + 3, textY, 0xFF888888, false);
+        }
     }
 }

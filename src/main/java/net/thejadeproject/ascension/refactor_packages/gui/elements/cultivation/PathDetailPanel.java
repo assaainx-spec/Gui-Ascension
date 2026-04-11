@@ -200,7 +200,9 @@ public class PathDetailPanel extends RenderableElement {
         gfx.fill(w - 12, 11, w - 2, 12, 0xFFAA2222);
         gfx.fill(w - 12, 2, w - 11, 12, 0xFFAA2222);
         gfx.fill(w - 3, 2, w - 2, 12, 0xFFAA2222);
-        gfx.drawString(font, "\u00d7", w - 11, 3, 0xFFFF5555, false);
+        int xCharX = w - 12 + (10 - font.width("\u00d7")) / 2;
+        int xCharY = 2 + (10 - 8) / 2;
+        gfx.drawString(font, "\u00d7", xCharX, xCharY, 0xFFFF5555, false);
         // Inner content frame: corner brackets + thin connectors
         int f = 3, ft = 16, fb = h - 3, bl = 12;
         gfx.fill(f + bl, ft,     w - f - bl, ft + 1, 0x664FC3F7);

@@ -2,16 +2,21 @@ package net.thejadeproject.ascension.refactor_packages.gui.elements.cultivation;
 
 import net.lucent.easygui.gui.RenderableElement;
 import net.lucent.easygui.gui.UIFrame;
+import net.lucent.easygui.gui.events.EasyEvents;
+import net.lucent.easygui.gui.events.type.EasyEvent;
+import net.lucent.easygui.gui.events.type.EasyMouseEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec2;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StatsPanel extends RenderableElement {
     private boolean helpVisible = false;
+    private Runnable onClose;
 
     private record LimiterEntry(LimiterStatRow row, int y) {}
     private final List<LimiterEntry> limiterEntries = new ArrayList<>();
@@ -36,6 +41,25 @@ public class StatsPanel extends RenderableElement {
         addLimiterRow(frame, "Move Speed",    vanillaId("generic.movement_speed"),   y); y += 10;
         addLimiterRow(frame, "Jump Height",   vanillaId("generic.jump_strength"),    y); y += 10;
         addLimiterRow(frame, "Step Height",   vanillaId("generic.step_height"),      y);
+
+        addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
+    }
+
+    public void setOnClose(Runnable onClose) {
+        this.onClose = onClose;
+    }
+
+    private void onMouseDown(EasyEvent event) {
+        if (!(event instanceof EasyMouseEvent mouseEvent)) return;
+        Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
+        int bx = getWidth() - 12;
+        if (local.x >= bx && local.x < bx + 10 && local.y >= 2 && local.y < 12) {
+            if (onClose != null) onClose.run();
+            event.setCanceled(true);
+            return;
+        }
+        tryClick(local.x, local.y);
+        event.setCanceled(true);
     }
 
     public void tryClick(double px, double py) {
@@ -92,7 +116,7 @@ public class StatsPanel extends RenderableElement {
 
         if (helpVisible) {
             int pw = 110, ph = 56;
-            int px = w + 4, py = 0;
+            int px = w - pw, py = -ph - 2;
             gfx.fill(px, py, px+pw, py+ph, 0xEE050810);
             gfx.fill(px, py, px+pw, py+1, 0xFF4FC3F7);
             gfx.fill(px, py+ph-1, px+pw, py+ph, 0xFF4FC3F7);

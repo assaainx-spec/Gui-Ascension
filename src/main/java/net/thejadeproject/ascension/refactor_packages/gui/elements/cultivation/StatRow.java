@@ -25,7 +25,7 @@ public class StatRow extends RenderableElement {
         super.render(gfx, mouseX, mouseY, partialTick);
         AttributeInstance inst = Minecraft.getInstance().player.getAttribute(attribute);
         String valueStr = inst == null ? "—" : String.format("%.2f", inst.getValue());
-        gfx.drawString(Minecraft.getInstance().font, label, 0, 1, 0xFFAAAAAA, false);
-        gfx.drawString(Minecraft.getInstance().font, "·  " + valueStr, 80, 1, 0xFFFFFFFF, false);
+        gfx.drawString(Minecraft.getInstance().font, label, 0, 2, 0xFFAAAAAA, false);
+        gfx.drawString(Minecraft.getInstance().font, valueStr, 80, 2, 0xFFFFFFFF, false);
     }
 }

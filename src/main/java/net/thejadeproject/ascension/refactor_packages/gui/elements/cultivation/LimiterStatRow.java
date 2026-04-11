@@ -72,7 +72,7 @@ public class LimiterStatRow extends RenderableElement {
         int minusX = plusX - 13;
 
         gfx.drawString(font, label, 0, 2, 0xFFAAAAAA, false);
-        gfx.drawString(font, realStr, 82, 2, 0xFFFFFFFF, false);
+        gfx.drawString(font, realStr, 80, 2, 0xFFFFFFFF, false);
 
         // − button (suppress more / lower stat)
         gfx.fill(minusX, 1, minusX + 8, 11, 0xFF222222);

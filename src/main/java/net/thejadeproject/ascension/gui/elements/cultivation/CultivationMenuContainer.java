@@ -2,6 +2,7 @@ package net.thejadeproject.ascension.gui.elements.cultivation;
 
 import net.lucent.easygui.gui.RenderableElement;
 import net.lucent.easygui.gui.UIFrame;
+import net.lucent.easygui.gui.elements.built_in.EasyLabel;
 import net.lucent.easygui.gui.events.EasyEvents;
 import net.lucent.easygui.gui.events.type.EasyEvent;
 import net.lucent.easygui.gui.events.type.EasyMouseEvent;
@@ -11,6 +12,7 @@ import net.lucent.easygui.gui.textures.TextureDataSubsection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.thejadeproject.ascension.AscensionCraft;
@@ -98,6 +100,13 @@ public class CultivationMenuContainer extends RenderableElement {
         addChild(techniquesPanel);
         addChild(physiquePanel);
         addChild(techniquePopup);
+
+        EasyLabel pathsLabel = new EasyLabel(frame);
+        pathsLabel.setText(Component.literal("PATHS"));
+        pathsLabel.setTextColor(0xFF4FC3F7);
+        pathsLabel.getPositioning().setX(6);
+        pathsLabel.getPositioning().setY(6);
+        addChild(pathsLabel);
 
         if (!pathTabs.isEmpty()) {
             selectPath(pathTabs.get(0));
@@ -252,13 +261,19 @@ public class CultivationMenuContainer extends RenderableElement {
         event.setCanceled(true);
     }
 
+    private static void fillBorderedRect(GuiGraphics gfx, int x, int y, int w, int h, int bg, int border) {
+        gfx.fill(x, y, x + w, y + h, bg);
+        gfx.fill(x, y, x + w, y + 1, border);
+        gfx.fill(x, y + h - 1, x + w, y + h, border);
+        gfx.fill(x, y, x + 1, y + h, border);
+        gfx.fill(x + w - 1, y, x + w, y + h, border);
+    }
+
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         Font font = Minecraft.getInstance().font;
 
         BG.render(gfx);
-
-        gfx.drawString(font, "PATHS", 6, 6, 0xFF4FC3F7, false);
 
         int tabsStartY = 19;
         for (int i = 0; i < pathTabs.size(); i++) {
@@ -267,17 +282,9 @@ public class CultivationMenuContainer extends RenderableElement {
             boolean active = pathId.equals(selectedPath);
 
             if (active) {
-                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x2E006396);
-                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0xFF006396);
-                gfx.fill(TAB_X, tabY + TAB_H - 1, TAB_X + TAB_W, tabY + TAB_H, 0xFF006396);
-                gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + TAB_H, 0xFF006396);
-                gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + TAB_H, 0xFF006396);
+                fillBorderedRect(gfx, TAB_X, tabY, TAB_W, TAB_H, 0x2E006396, 0xFF006396);
             } else {
-                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x18050810);
-                gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0x44006396);
-                gfx.fill(TAB_X, tabY + TAB_H - 1, TAB_X + TAB_W, tabY + TAB_H, 0x44006396);
-                gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + TAB_H, 0x44006396);
-                gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + TAB_H, 0x44006396);
+                fillBorderedRect(gfx, TAB_X, tabY, TAB_W, TAB_H, 0x18050810, 0x44006396);
             }
 
             String rawName = pathId.getPath();
@@ -306,25 +313,13 @@ public class CultivationMenuContainer extends RenderableElement {
         int textY = tabY + (h - 8) / 2;
         int textX = TAB_X + (TAB_W - font.width(label) + 1) / 2;
         if (rejected) {
-            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + h, 0x882A0000);
-            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0xFFAA2222);
-            gfx.fill(TAB_X, tabY + h - 1, TAB_X + TAB_W, tabY + h, 0xFFAA2222);
-            gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + h, 0xFFAA2222);
-            gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + h, 0xFFAA2222);
+            fillBorderedRect(gfx, TAB_X, tabY, TAB_W, h, 0x882A0000, 0xFFAA2222);
             gfx.drawString(font, label, textX, textY, 0xFFFF5555, false);
         } else if (active) {
-            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + h, 0x2E006396);
-            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0xFF006396);
-            gfx.fill(TAB_X, tabY + h - 1, TAB_X + TAB_W, tabY + h, 0xFF006396);
-            gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + h, 0xFF006396);
-            gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + h, 0xFF006396);
+            fillBorderedRect(gfx, TAB_X, tabY, TAB_W, h, 0x2E006396, 0xFF006396);
             gfx.drawString(font, label, textX, textY, 0xFF4FC3F7, false);
         } else {
-            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + h, 0x18050810);
-            gfx.fill(TAB_X, tabY, TAB_X + TAB_W, tabY + 1, 0x44006396);
-            gfx.fill(TAB_X, tabY + h - 1, TAB_X + TAB_W, tabY + h, 0x44006396);
-            gfx.fill(TAB_X, tabY, TAB_X + 1, tabY + h, 0x44006396);
-            gfx.fill(TAB_X + TAB_W - 1, tabY, TAB_X + TAB_W, tabY + h, 0x44006396);
+            fillBorderedRect(gfx, TAB_X, tabY, TAB_W, h, 0x18050810, 0x44006396);
             gfx.drawString(font, label, textX, textY, 0xFF888888, false);
         }
     }

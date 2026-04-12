@@ -39,6 +39,14 @@ public class PathDetailPanel extends RenderableElement {
         setHeight(180);
     }
 
+    private static void fillBorderedRect(GuiGraphics gfx, int x, int y, int w, int h, int bg, int border) {
+        gfx.fill(x, y, x + w, y + h, bg);
+        gfx.fill(x, y, x + w, y + 1, border);
+        gfx.fill(x, y + h - 1, x + w, y + h, border);
+        gfx.fill(x, y, x + 1, y + h, border);
+        gfx.fill(x + w - 1, y, x + w, y + h, border);
+    }
+
     public void setPath(ResourceLocation pathId) {
         this.pathId = pathId;
     }
@@ -161,11 +169,7 @@ public class PathDetailPanel extends RenderableElement {
         if (canBreakthrough) {
             int btnX = 10, btnW = w - 20, btnH = 14;
             breakthroughBtnY = iy;
-            gfx.fill(btnX, iy, btnX + btnW, iy + btnH, 0xE5051E0F);
-            gfx.fill(btnX, iy, btnX + btnW, iy + 1, 0xFF44CC44);
-            gfx.fill(btnX, iy + btnH - 1, btnX + btnW, iy + btnH, 0xFF44CC44);
-            gfx.fill(btnX, iy, btnX + 1, iy + btnH, 0xFF44CC44);
-            gfx.fill(btnX + btnW - 1, iy, btnX + btnW, iy + btnH, 0xFF44CC44);
+            fillBorderedRect(gfx, btnX, iy, btnW, btnH, 0xE5051E0F, 0xFF44CC44);
             String btnText = "Breakthrough";
             gfx.drawString(font, btnText, btnX + btnW / 2 - font.width(btnText) / 2, iy + 3, 0xFF88FFAA, false);
         }

@@ -2,6 +2,7 @@ package net.thejadeproject.ascension.gui.elements.cultivation;
 
 import net.lucent.easygui.gui.RenderableElement;
 import net.lucent.easygui.gui.UIFrame;
+import net.lucent.easygui.gui.elements.built_in.EasyLabel;
 import net.lucent.easygui.gui.events.EasyEvents;
 import net.lucent.easygui.gui.events.type.EasyEvent;
 import net.lucent.easygui.gui.events.type.EasyMouseEvent;
@@ -10,6 +11,7 @@ import net.lucent.easygui.gui.textures.TextureDataSubsection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.thejadeproject.ascension.AscensionCraft;
@@ -32,6 +34,20 @@ public class StatsPanel extends RenderableElement {
         super(frame);
         setWidth(160);
         setHeight(180);
+
+        EasyLabel titleLabel = new EasyLabel(frame);
+        titleLabel.setText(Component.literal("STATS"));
+        titleLabel.setTextColor(0xFF4FC3F7);
+        titleLabel.getPositioning().setX(5);
+        titleLabel.getPositioning().setY(3);
+        addChild(titleLabel);
+
+        EasyLabel helpLabel = new EasyLabel(frame);
+        helpLabel.setText(Component.literal("?"));
+        helpLabel.setTextColor(0xFF4FC3F7);
+        helpLabel.getPositioning().setX(getWidth() - 23);
+        helpLabel.getPositioning().setY(3);
+        addChild(helpLabel);
 
         int y = 18;
 
@@ -108,27 +124,27 @@ public class StatsPanel extends RenderableElement {
         limiterEntries.add(new LimiterEntry(row, y));
     }
 
+    private static void fillBorderedRect(GuiGraphics gfx, int x, int y, int w, int h, int bg, int border) {
+        gfx.fill(x, y, x + w, y + h, bg);
+        gfx.fill(x, y, x + w, y + 1, border);
+        gfx.fill(x, y + h - 1, x + w, y + h, border);
+        gfx.fill(x, y, x + 1, y + h, border);
+        gfx.fill(x + w - 1, y, x + w, y + h, border);
+    }
+
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         var font = Minecraft.getInstance().font;
-        int w = getWidth(), h = getHeight();
+        int w = getWidth();
         BG.render(gfx);
-        gfx.drawString(font, "STATS", 5, 3, 0xFF4FC3F7, false);
         gfx.drawString(font, "\u00d7", w - 12 + (10 - font.width("\u00d7") + 1) / 2, 3, 0xFFFF5555, false);
-
-        int qx = w - 26;
-        gfx.drawString(font, "?", qx + 3, 3, 0xFF4FC3F7, false);
 
         super.render(gfx, mouseX, mouseY, partialTick);
 
         if (helpVisible) {
             int pw = 110, ph = 56;
             int px = w - pw, py = -ph - 2;
-            gfx.fill(px, py, px+pw, py+ph, 0xEE050810);
-            gfx.fill(px, py, px+pw, py+1, 0xFF4FC3F7);
-            gfx.fill(px, py+ph-1, px+pw, py+ph, 0xFF4FC3F7);
-            gfx.fill(px, py, px+1, py+ph, 0xFF4FC3F7);
-            gfx.fill(px+pw-1, py, px+pw, py+ph, 0xFF4FC3F7);
+            fillBorderedRect(gfx, px, py, pw, ph, 0xEE050810, 0xFF4FC3F7);
             gfx.drawString(font, "Step sizes:", px+5, py+5, 0xFF4FC3F7, false);
             gfx.drawString(font, "Default  0.01",  px+5, py+16, 0xFFAAAAAA, false);
             gfx.drawString(font, "Shift    0.1",   px+5, py+26, 0xFFAAAAAA, false);

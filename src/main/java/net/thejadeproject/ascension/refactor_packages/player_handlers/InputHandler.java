@@ -18,6 +18,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.network.serverBound.input.ChangePlayerInputState;
 import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_casting.SkillHotBarContainer;
+import net.lucent.easygui.gui.layout.positioning.rules.PositioningRules;
+import net.thejadeproject.ascension.refactor_packages.gui.elements.general.Container;
 import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_view.SkillMenuContainer;
 import net.thejadeproject.ascension.refactor_packages.gui.elements.cultivation.CultivationMenuContainer;
 import org.lwjgl.glfw.GLFW;
@@ -56,7 +58,15 @@ public class InputHandler {
         }));
         put(OPEN_CULTIVATION_MENU, new ActionHandler("cultivation_menu_opening").setOnRelease((mod) -> {
             UIFrame frame = new UIFrame();
-            frame.setRoot(new CultivationMenuContainer(frame));
+            Container root = new Container(frame, 0, 0);
+            root.getPositioning().setPositioningRule(PositioningRules.CENTER);
+            SkillMenuContainer skillMenu = new SkillMenuContainer(frame);
+            skillMenu.setActive(false);
+            CultivationMenuContainer cult = new CultivationMenuContainer(frame);
+            cult.setSkillMenu(skillMenu);
+            root.addChild(cult);
+            root.addChild(skillMenu);
+            frame.setRoot(root);
             Minecraft.getInstance().setScreen(new EasyScreen(Component.literal("cultivation"), frame));
         }));
     }};

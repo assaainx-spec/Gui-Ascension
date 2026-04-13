@@ -32,6 +32,14 @@ public class PathDetailPanel extends RenderableElement {
         setHeight(180);
     }
 
+    private static void fillBorderedRect(GuiGraphics gfx, int x, int y, int w, int h, int bg, int border) {
+        gfx.fill(x, y, x + w, y + h, bg);
+        gfx.fill(x, y, x + w, y + 1, border);
+        gfx.fill(x, y + h - 1, x + w, y + h, border);
+        gfx.fill(x, y, x + 1, y + h, border);
+        gfx.fill(x + w - 1, y, x + w, y + h, border);
+    }
+
     public void setPath(ResourceLocation pathId) {
         this.pathId = pathId;
     }
@@ -67,23 +75,27 @@ public class PathDetailPanel extends RenderableElement {
         }
     }
 
-    private int progressBarColor() {
-        String path = pathId.getPath();
-        if (path.contains("body")) return 0xFF44DD44;
-        if (path.contains("essence")) return 0xFF3399FF;
-        if (path.contains("intent")) return 0xFFAA44FF;
-        return 0xFF4FC3F7;
-    }
-
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         int w = getWidth();
         int h = getHeight();
         Font font = Minecraft.getInstance().font;
 
+        gfx.fill(0, 0, w, h, 0xFF050810);
+        gfx.fill(0,   0,   w,   1,   0xFF4FC3F7);
+        gfx.fill(0,   h-1, w,   h,   0xFF4FC3F7);
+        gfx.fill(0,   0,   1,   h,   0xFF4FC3F7);
+        gfx.fill(w-1, 0,   w,   h,   0xFF4FC3F7);
+        gfx.fill(0, 13, w, 14, 0x55006396);
+        gfx.fill(1, 1, 4, 2, 0x88006396);  gfx.fill(1, 1, 2, 4, 0x88006396);
+        gfx.fill(w-4, 1, w-1, 2, 0x88006396);  gfx.fill(w-2, 1, w-1, 4, 0x88006396);
+        gfx.fill(1, h-2, 4, h-1, 0x88006396);  gfx.fill(1, h-4, 2, h-1, 0x88006396);
+        gfx.fill(w-4, h-2, w-1, h-1, 0x88006396);  gfx.fill(w-2, h-4, w-1, h-1, 0x88006396);
+
         String pathName = pathId.getPath();
         String headerText = pathName.isEmpty() ? pathName : Character.toUpperCase(pathName.charAt(0)) + pathName.substring(1);
-        drawChrome(gfx, font, w, h, headerText);
+        gfx.drawString(font, headerText, 5, 3, 0xFF4FC3F7, false);
+        gfx.drawString(font, "\u00d7", w - 12 + (10 - font.width("\u00d7") + 1) / 2, 3, 0xFFFF5555, false);
 
         IEntityData entityData = Minecraft.getInstance().player.getData(ModAttachments.ENTITY_DATA);
         boolean hasPath = entityData != null && entityData.hasPath(pathId);
@@ -119,10 +131,12 @@ public class PathDetailPanel extends RenderableElement {
 
         double maxProgress = technique != null ? technique.getMaxQiForRealm(majorRealm, minorRealm) : 1.0;
         double fillFraction = maxProgress > 0 ? Math.min(progress / maxProgress, 1.0) : 0.0;
+        String p = pathId.getPath();
+        int barColor = p.contains("body") ? 0xFF44DD44 : p.contains("essence") ? 0xFF3399FF : p.contains("intent") ? 0xFFAA44FF : 0xFF4FC3F7;
         int barX = 6, barW = w - 12, barH = 8;
         gfx.fill(barX, y, barX + barW, y + barH, 0xFF111111);
         int fillW = (int) (barW * fillFraction);
-        if (fillW > 0) gfx.fill(barX, y, barX + fillW, y + barH, progressBarColor());
+        if (fillW > 0) gfx.fill(barX, y, barX + fillW, y + barH, barColor);
         String progressText = String.format("%.0f / %.0f", progress, maxProgress);
         gfx.drawString(font, progressText, barX + barW / 2 - font.width(progressText) / 2, y + 1, 0xFFFFFFFF, false);
         y += barH + 4;
@@ -158,11 +172,7 @@ public class PathDetailPanel extends RenderableElement {
         if (canBreakthrough) {
             int btnX = 10, btnW = w - 20, btnH = 14;
             breakthroughBtnY = iy;
-            gfx.fill(btnX, iy, btnX + btnW, iy + btnH, 0xE5051E0F);
-            gfx.fill(btnX, iy, btnX + btnW, iy + 1, 0xFF44CC44);
-            gfx.fill(btnX, iy + btnH - 1, btnX + btnW, iy + btnH, 0xFF44CC44);
-            gfx.fill(btnX, iy, btnX + 1, iy + btnH, 0xFF44CC44);
-            gfx.fill(btnX + btnW - 1, iy, btnX + btnW, iy + btnH, 0xFF44CC44);
+            fillBorderedRect(gfx, btnX, iy, btnW, btnH, 0xE5051E0F, 0xFF44CC44);
             String btnText = "Breakthrough";
             gfx.drawString(font, btnText, btnX + btnW / 2 - font.width(btnText) / 2, iy + 3, 0xFF88FFAA, false);
         }
@@ -170,52 +180,4 @@ public class PathDetailPanel extends RenderableElement {
         super.render(gfx, mouseX, mouseY, partialTick);
     }
 
-    static void drawChrome(GuiGraphics gfx, Font font, int w, int h, String title) {
-        gfx.fill(0, 0, w, h, 0xE8050810);
-        gfx.fill(0, 0, w, 1, 0xFF4FC3F7);
-        gfx.fill(0, h - 1, w, h, 0xFF4FC3F7);
-        gfx.fill(0, 0, 1, h, 0xFF4FC3F7);
-        gfx.fill(w - 1, 0, w, h, 0xFF4FC3F7);
-        // Corner accent marks (2px thick)
-        gfx.fill(0, 0, 6, 2, 0xFF4FC3F7);
-        gfx.fill(0, 0, 2, 6, 0xFF4FC3F7);
-        gfx.fill(w - 6, 0, w, 2, 0xFF4FC3F7);
-        gfx.fill(w - 2, 0, w, 6, 0xFF4FC3F7);
-        gfx.fill(0, h - 2, 6, h, 0xFF4FC3F7);
-        gfx.fill(0, h - 6, 2, h, 0xFF4FC3F7);
-        gfx.fill(w - 6, h - 2, w, h, 0xFF4FC3F7);
-        gfx.fill(w - 2, h - 6, w, h, 0xFF4FC3F7);
-        // Inner border
-        gfx.fill(2, 2, w - 2, 3, 0xFF1A4A6A);
-        gfx.fill(2, h - 3, w - 2, h - 2, 0xFF1A4A6A);
-        gfx.fill(2, 2, 3, h - 2, 0xFF1A4A6A);
-        gfx.fill(w - 3, 2, w - 2, h - 2, 0xFF1A4A6A);
-        // Title bar fill + bottom divider
-        gfx.fill(1, 1, w - 1, 14, 0xDD001E30);
-        gfx.fill(1, 13, w - 1, 14, 0xFF4FC3F7);
-        gfx.drawString(font, title, 5, 3, 0xFF4FC3F7, false);
-        // × close button
-        gfx.fill(w - 12, 2, w - 2, 12, 0xFF3A0808);
-        gfx.fill(w - 12, 2, w - 2, 3, 0xFFAA2222);
-        gfx.fill(w - 12, 11, w - 2, 12, 0xFFAA2222);
-        gfx.fill(w - 12, 2, w - 11, 12, 0xFFAA2222);
-        gfx.fill(w - 3, 2, w - 2, 12, 0xFFAA2222);
-        int xCharX = w - 12 + (10 - font.width("\u00d7")) / 2;
-        int xCharY = 2 + (10 - 8) / 2;
-        gfx.drawString(font, "\u00d7", xCharX, xCharY, 0xFFFF5555, false);
-        // Inner content frame: corner brackets + thin connectors
-        int f = 3, ft = 16, fb = h - 3, bl = 12;
-        gfx.fill(f + bl, ft,     w - f - bl, ft + 1, 0x664FC3F7);
-        gfx.fill(f + bl, fb - 1, w - f - bl, fb,     0x664FC3F7);
-        gfx.fill(f,      ft + bl, f + 1, fb - bl,    0x664FC3F7);
-        gfx.fill(w-f-1,  ft + bl, w - f, fb - bl,    0x664FC3F7);
-        gfx.fill(f,      ft,      f + bl, ft + 1,    0xFF4FC3F7);
-        gfx.fill(f,      ft,      f + 1,  ft + bl,   0xFF4FC3F7);
-        gfx.fill(w-f-bl, ft,      w - f,  ft + 1,    0xFF4FC3F7);
-        gfx.fill(w-f-1,  ft,      w - f,  ft + bl,   0xFF4FC3F7);
-        gfx.fill(f,      fb - 1,  f + bl, fb,         0xFF4FC3F7);
-        gfx.fill(f,      fb - bl, f + 1,  fb,         0xFF4FC3F7);
-        gfx.fill(w-f-bl, fb - 1,  w - f,  fb,         0xFF4FC3F7);
-        gfx.fill(w-f-1,  fb - bl, w - f,  fb,         0xFF4FC3F7);
-    }
 }

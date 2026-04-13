@@ -7,11 +7,9 @@ import net.lucent.easygui.gui.events.EasyEvents;
 import net.lucent.easygui.gui.events.EventPhase;
 import net.lucent.easygui.gui.events.type.EasyEvent;
 import net.lucent.easygui.gui.textures.ITextureData;
-import net.lucent.easygui.gui.textures.TextureDataSubsection;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 
 public class PassiveSkillIcon extends RenderableElement {
@@ -22,13 +20,10 @@ public class PassiveSkillIcon extends RenderableElement {
 
     private EasyLabel label;
 
-    private final ITextureData background =  new TextureDataSubsection(
-            ResourceLocation.fromNamespaceAndPath(AscensionCraft.MOD_ID,"textures/gui/screen/skill_stuff/skill_menu.png"),
-            320,256,
-            0,236,92,20
-    );
     public PassiveSkillIcon(UIFrame frame, ResourceLocation skill) {
         super(frame);
+        setWidth(92);
+        setHeight(20);
         label = new EasyLabel(frame);
         label.getPositioning().setX(27);
         label.getPositioning().setY(5);
@@ -45,14 +40,13 @@ public class PassiveSkillIcon extends RenderableElement {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-
-        background.renderAt(guiGraphics,2,0,background.getWidth(),background.getHeight());
-        if(skillIcon != null){
-            skillIcon.renderAt(guiGraphics,4,2);
-        }
-        if(isHovered()) guiGraphics.fill(0,0,getWidth(),getHeight(),-930773627);
+    public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+        int w = getWidth(), h = getHeight();
+        gfx.fill(0, 0, w, h, 0xCC050810);
+        if (isHovered()) gfx.fill(0, 0, w, h, 0x22FFFFFF);
+        gfx.fill(0, h - 1, w, h, 0x33006396);
+        if (skillIcon != null) skillIcon.renderAt(gfx, 2, 2);
+        super.render(gfx, mouseX, mouseY, partialTick);
     }
 
     public void setSkill(ResourceLocation skill){

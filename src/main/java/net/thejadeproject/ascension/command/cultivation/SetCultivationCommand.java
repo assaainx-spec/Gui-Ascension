@@ -169,6 +169,7 @@ public class SetCultivationCommand {
             ResourceLocation path = ResourceLocation.parse(pathId);
             PathData data = player.getData(ModAttachments.ENTITY_DATA).getPathData(path);
             data.handleRealmChange(newMajorRealm,newMinorRealm,player.getData(ModAttachments.ENTITY_DATA));
+            data.sync(player);
 
             data.setCurrentRealmProgress((AscensionRegistries.Techniques.TECHNIQUES_REGISTRY.get(data.getLastUsedTechnique()).getMaxQiForRealm(data.getMajorRealm(),data.getMinorRealm()))*(progressPercent/100.0));
             // Build feedback message with progress info if provided

@@ -10,7 +10,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
-import net.thejadeproject.ascension.AscensionCraft;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 import net.thejadeproject.ascension.refactor_packages.techniques.ITechnique;
 
@@ -24,7 +23,7 @@ public class TechniquePopup extends RenderableElement {
 
     public TechniquePopup(UIFrame frame) {
         super(frame);
-        setWidth(100);
+        setWidth(160);
         setHeight(180);
         addEventListener(EasyEvents.MOUSE_DOWN_EVENT, this::onMouseDown);
     }
@@ -40,10 +39,14 @@ public class TechniquePopup extends RenderableElement {
     private void onMouseDown(EasyEvent event) {
         if (!(event instanceof EasyMouseEvent mouseEvent)) return;
         Vec2 local = globalToLocalPositionPoint((float) mouseEvent.getMouseX(), (float) mouseEvent.getMouseY());
+        tryClick(local.x, local.y);
+        event.setCanceled(true);
+    }
+
+    public void tryClick(double px, double py) {
         int bx = getWidth() - 12;
-        if (local.x >= bx && local.x < bx + 10 && local.y >= 2 && local.y < 12) {
+        if (px >= bx && px < bx + 10 && py >= 2 && py < 12) {
             if (onClose != null) onClose.run();
-            event.setCanceled(true);
         }
     }
 
@@ -68,10 +71,22 @@ public class TechniquePopup extends RenderableElement {
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         int w = getWidth();
         int h = getHeight();
-
         Font font = Minecraft.getInstance().font;
         String title = technique == null ? "Technique" : technique.getDisplayTitle().getString();
-        PathDetailPanel.drawChrome(gfx, font, w, h, title);
+
+        gfx.fill(0, 0, w, h, 0xFF050810);
+        gfx.fill(0,   0,   w,   1,   0xFF4FC3F7);
+        gfx.fill(0,   h-1, w,   h,   0xFF4FC3F7);
+        gfx.fill(0,   0,   1,   h,   0xFF4FC3F7);
+        gfx.fill(w-1, 0,   w,   h,   0xFF4FC3F7);
+        gfx.fill(0, 13, w, 14, 0x55006396);
+        gfx.fill(1, 1, 4, 2, 0x88006396);  gfx.fill(1, 1, 2, 4, 0x88006396);
+        gfx.fill(w-4, 1, w-1, 2, 0x88006396);  gfx.fill(w-2, 1, w-1, 4, 0x88006396);
+        gfx.fill(1, h-2, 4, h-1, 0x88006396);  gfx.fill(1, h-4, 2, h-1, 0x88006396);
+        gfx.fill(w-4, h-2, w-1, h-1, 0x88006396);  gfx.fill(w-2, h-4, w-1, h-1, 0x88006396);
+
+        gfx.drawString(font, title, 5, 3, 0xFF4FC3F7, false);
+        gfx.drawString(font, "\u00d7", w - 12 + (10 - font.width("\u00d7") + 1) / 2, 3, 0xFFFF5555, false);
 
         if (technique == null) {
             super.render(gfx, mouseX, mouseY, partialTick);
@@ -88,7 +103,8 @@ public class TechniquePopup extends RenderableElement {
 
         gfx.drawString(font, "Description", 6, y, 0xFFAAAAAA, false);
         y += 11;
-        for (String line : wrapText(technique.getShortDescription().getString(), font, w - 12)) {
+        String desc = technique.getShortDescription() != null ? technique.getShortDescription().getString() : "";
+        for (String line : wrapText(desc, font, w - 12)) {
             gfx.drawString(font, line, 6, y, 0xFFCCCCCC, false);
             y += 10;
         }

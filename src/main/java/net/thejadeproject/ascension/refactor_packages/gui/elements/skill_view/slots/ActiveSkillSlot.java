@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.thejadeproject.ascension.data_attachments.ModAttachments;
 import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_view.ActiveSkillBar;
-import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_view.SkillMenuContainer;
+import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_view.ISkillDragContainer;
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.skills.ClearSlot;
 import net.thejadeproject.ascension.refactor_packages.network.server_bound.skills.UpdateSkillSlot;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
@@ -39,7 +39,7 @@ public class ActiveSkillSlot extends RenderableElement {
     public void onMouseUp(EasyEvent event){
         if(event.getTarget() != this)return;
 
-        if(getUiFrame().getElementById("container") instanceof SkillMenuContainer container && container.getHeldSkill() != null){
+        if(getUiFrame().getElementById("container") instanceof ISkillDragContainer container && container.getHeldSkill() != null){
             setSkill(container.getHeldSkill());
             container.setHeldSkill(null);
         }
@@ -48,7 +48,7 @@ public class ActiveSkillSlot extends RenderableElement {
     public void onMouseDown(EasyEvent event){
         if(event.getTarget() != this) return;
 
-        if(getUiFrame().getElementById("container") instanceof SkillMenuContainer container){
+        if(getUiFrame().getElementById("container") instanceof ISkillDragContainer container){
             container.setHeldSkill(skill);
         }
     }
@@ -66,6 +66,7 @@ public class ActiveSkillSlot extends RenderableElement {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        refresh();
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if(enabled){
             //TODO replace with renderAt
@@ -99,7 +100,9 @@ public class ActiveSkillSlot extends RenderableElement {
 
             if(AscensionRegistries.Skills.SKILL_REGISTRY.get(skill) instanceof ICastableSkill castableSkill){
                 PacketDistributor.sendToServer(new UpdateSkillSlot(slot,skill.toString()));
-                ((ActiveSkillBar)getParent().getParent()).removeSkill(skill);
+                if (getParent() != null && getParent().getParent() instanceof ActiveSkillBar bar) {
+                    bar.removeSkill(skill);
+                }
                 this.skill = skill;
                 icon = castableSkill.getIcon();
 

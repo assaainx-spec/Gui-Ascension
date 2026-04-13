@@ -8,7 +8,7 @@ import net.lucent.easygui.gui.events.type.EasyEvent;
 import net.lucent.easygui.gui.textures.ITextureData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_view.SkillMenuContainer;
+import net.thejadeproject.ascension.refactor_packages.gui.elements.skill_view.ISkillDragContainer;
 import net.thejadeproject.ascension.refactor_packages.registries.AscensionRegistries;
 
 public class ActiveSkillIcon extends RenderableElement {
@@ -26,7 +26,7 @@ public class ActiveSkillIcon extends RenderableElement {
     public void onMouseDown(EasyEvent event){
         if(event.getTarget() != this) return;
 
-        if(getUiFrame().getElementById("container") instanceof SkillMenuContainer container){
+        if(getUiFrame().getElementById("container") instanceof ISkillDragContainer container){
             container.setHeldSkill(skillId);
         }
     }
@@ -39,15 +39,20 @@ public class ActiveSkillIcon extends RenderableElement {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        if(skillIcon != null) {
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(1,1,0);
-            skillIcon.render(guiGraphics);
-            guiGraphics.pose().popPose();
-        };
-        if(isHovered()) guiGraphics.fill(1,1,17,17,-930773627);
+    public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+        super.render(gfx, mouseX, mouseY, partialTick);
+        gfx.fill(0,  0,  18, 18, 0xFF0A1E30);
+        gfx.fill(0,  0,  18, 1,  0xFF2255AA);
+        gfx.fill(0,  17, 18, 18, 0xFF2255AA);
+        gfx.fill(0,  0,  1,  18, 0xFF2255AA);
+        gfx.fill(17, 0,  18, 18, 0xFF2255AA);
+        if (skillIcon != null) {
+            gfx.pose().pushPose();
+            gfx.pose().translate(1, 1, 0);
+            skillIcon.render(gfx);
+            gfx.pose().popPose();
+        }
+        if (isHovered()) gfx.fill(1, 1, 17, 17, 0x33FFFFFF);
     }
     public boolean isHovered(){return hovered;}
     public void onMouseMove(EasyEvent event){
